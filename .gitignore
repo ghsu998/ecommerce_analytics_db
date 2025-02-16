@@ -1,0 +1,10 @@
+# 忽略 Python 虛擬環境
+venv/
+
+# 忽略數據文件（確保 Git 只追蹤代碼）
+*.xlsx
+*.csv
+
+# 忽略 IDE 相關文件
+.vscode/
+__pycache__/

@@ -1,0 +1,29 @@
+
+### Kinger_Ecommerce_Analysis
+1. Data
+    1. Data_Inventory - auto_task.py
+    2. Data_Weekly_Sold - auto_task.py
+    3. Data_Sales - auto_task.py
+    4. Data_Payouts - auto_task.py
+    5. SKU_Analysis - auto_task.py
+    6. Container_Log - auto_task.py
+    7. 
+2. Features
+    1. Inventory_Analysis - EOQ
+    2. 
+3. MySQL Database Structure
+    table: inventory_history_raw
+    table: inventory_history_clean
+    table: 
+    
+    Weekly_Sold
+    Monthly_Sales
+    Marketplace_Payouts
+
+
+
+### Gary Ecommerce SKU_Analysis
+1.
+
+
+

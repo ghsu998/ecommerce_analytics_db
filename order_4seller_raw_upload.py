@@ -5,7 +5,7 @@ from sqlalchemy import text  # ✅ 新增這一行，讓 SQLAlchemy 識別 SQL �
 from tqdm import tqdm  # ✅ 引入進度條
 
 # 讀取 Excel 檔案
-file_path = "/Users/gary/Documents/Project_Analysis/Order_History_4seller.xlsx"
+file_path = "/Users/gary/Documents/business_Analysis/Data/order_4seller_raw.xlsx"
 df = pd.read_excel(file_path)
 
 # 定義 Excel 欄位 → SQL Table 欄位對應 總共57個欄位
@@ -92,7 +92,7 @@ engine = create_engine(f"mysql+pymysql://{username}:{password}@{server}:{port}/{
 # ✅ **使用 `ON DUPLICATE KEY UPDATE` 確保數據正確**
 # ✅ **完整的 SQL 插入語句，涵蓋 57 個欄位**
 insert_sql = text("""
-    INSERT INTO orders_4seller (
+    INSERT INTO order_4seller_raw (
         OrderPlatform, Shop, Platform_Order_Number, Platform_Order_Status, 
         Platform_Product_ID, Platform_Variant_ID, Shop_SKU, Stock_SKU, 
         Title, Variant_Name, Unit_Price, Quantity, Sales_Link, 

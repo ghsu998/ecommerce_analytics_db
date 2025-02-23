@@ -73,3 +73,5 @@ def webhook():
 # 🔹 啟動 Flask 服務
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
+    print("🚀 Webhook 測試成功！")
+

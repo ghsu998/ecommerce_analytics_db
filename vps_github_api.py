@@ -67,11 +67,23 @@ def home():
 
 
 # 🔹 取得 GitHub 內的檔案內容
+# ✅ 安全性：從 config.json 讀取 API Token
+API_ACCESS_TOKEN = config.get("api_access_token")
+
+# 讀取 config.json
+with open("config.json", "r") as f:
+    config = json.load(f)
+
+GITHUB_TOKEN = config.get("github_token")
+GITHUB_OWNER = config.get("github_owner")  # ✅ 確保這行有正確賦值
+GITHUB_REPO = config.get("github_repo")
+
+
 @app.route('/get_code', methods=['GET'])
 def get_code():
     # ✅ 檢查 API Token
     client_token = request.headers.get("X-API-TOKEN")
-    if client_token != API_ACCESS_TOKEN:
+    if not API_ACCESS_TOKEN or client_token != API_ACCESS_TOKEN:
         return jsonify({"error": "無效的 API Token"}), 403
 
     # 取得請求的檔案名稱
@@ -95,9 +107,7 @@ def get_code():
     file_content = base64.b64decode(file_data.get("content", "")).decode("utf-8")
 
     # ✅ 美化輸出
-    formatted_content = json.dumps({"file": file_path, "content": file_content}, indent=4, ensure_ascii=False)
-
-    return Response(formatted_content, content_type="application/json; charset=utf-8")
+    return jsonify({"file": file_path, "content": file_content})
 
 @app.route('/list_files', methods=['GET'])
 def list_files():

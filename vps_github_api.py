@@ -67,22 +67,33 @@ def home():
 
 
 # 🔹 取得 GitHub 內的檔案內容
-@app.route("/get_code", methods=["GET"])
+@app.route('/get_code', methods=['GET'])
 def get_code():
-    file_path = request.args.get("file")  # 從 API 參數取得檔案名稱
+    file_path = request.args.get("file")  # 取得 API 請求的檔案名稱
     if not file_path:
         return jsonify({"error": "請提供 file 參數"}), 400
-
-    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{file_path}"
-    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-
-    response = requests.get(url, headers=headers)
+    
+    github_owner = config["github_owner"]
+    github_repo = config["github_repo"]
+    
+    # ✅ 檢查 GitHub API URL
+    github_api_url = f"https://api.github.com/repos/{github_owner}/{github_repo}/contents/{file_path}"
+    print(f"GitHub API URL: {github_api_url}")  # 🛠 Debug: 檢查 API URL
+    
+    headers = {"Authorization": f"token {config['github_token']}"}
+    
+    # ✅ 請求 GitHub API 取得檔案內容
+    response = requests.get(github_api_url, headers=headers)
+    print(f"GitHub API Response Status: {response.status_code}")  # 🛠 Debug: 檢查 API 回應狀態碼
+    print(f"GitHub API Response JSON: {response.json()}")  # 🛠 Debug: 檢查 API 回應內容
+    
     if response.status_code == 200:
-        content = response.json().get("content", "").encode('utf-8')
+        content = response.json().get("content", "")
         decoded_content = base64.b64decode(content).decode('utf-8')  # 解碼 Base64
         return jsonify({"file": file_path, "content": decoded_content})
     else:
-        return jsonify({"error": "無法讀取 GitHub 檔案", "status": response.status_code}), 400
+        return jsonify({"error": "無法讀取 GitHub 檔案", "details": response.json()}), response.status_code
+
 
 @app.route('/list_files', methods=['GET'])
 def list_files():

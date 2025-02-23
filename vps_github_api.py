@@ -69,31 +69,35 @@ def home():
 # 🔹 取得 GitHub 內的檔案內容
 @app.route('/get_code', methods=['GET'])
 def get_code():
-    file_path = request.args.get("file")  # 取得 API 請求的檔案名稱
+    # ✅ 檢查 API Token
+    client_token = request.headers.get("X-API-TOKEN")
+    if client_token != API_ACCESS_TOKEN:
+        return jsonify({"error": "無效的 API Token"}), 403
+
+    # 取得請求的檔案名稱
+    file_path = request.args.get("file")
     if not file_path:
         return jsonify({"error": "請提供 file 參數"}), 400
-    
-    github_owner = config["github_owner"]
-    github_repo = config["github_repo"]
-    
-    # ✅ 檢查 GitHub API URL
-    github_api_url = f"https://api.github.com/repos/{github_owner}/{github_repo}/contents/{file_path}"
-    print(f"GitHub API URL: {github_api_url}")  # 🛠 Debug: 檢查 API URL
-    
-    headers = {"Authorization": f"token {config['github_token']}"}
-    
-    # ✅ 請求 GitHub API 取得檔案內容
-    response = requests.get(github_api_url, headers=headers)
-    print(f"GitHub API Response Status: {response.status_code}")  # 🛠 Debug: 檢查 API 回應狀態碼
-    print(f"GitHub API Response JSON: {response.json()}")  # 🛠 Debug: 檢查 API 回應內容
-    
-    if response.status_code == 200:
-        content = response.json().get("content", "")
-        decoded_content = base64.b64decode(content).decode('utf-8')  # 解碼 Base64
-        return jsonify({"file": file_path, "content": decoded_content})
-    else:
-        return jsonify({"error": "無法讀取 GitHub 檔案", "details": response.json()}), response.status_code
 
+    # GitHub API URL
+    url = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{file_path}"
+    headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
+
+    # 發送請求
+    response = requests.get(url, headers=headers)
+
+    # ✅ 錯誤處理
+    if response.status_code != 200:
+        return jsonify({"error": "GitHub API 回應錯誤", "details": response.json()}), response.status_code
+
+    # 解析 JSON，並解碼 Base64 內容
+    file_data = response.json()
+    file_content = base64.b64decode(file_data.get("content", "")).decode("utf-8")
+
+    # ✅ 美化輸出
+    formatted_content = json.dumps({"file": file_path, "content": file_content}, indent=4, ensure_ascii=False)
+
+    return Response(formatted_content, content_type="application/json; charset=utf-8")
 
 @app.route('/list_files', methods=['GET'])
 def list_files():

@@ -86,8 +86,8 @@ def get_code():
 
 @app.route('/list_files', methods=['GET'])
 def list_files():
-    repo_owner = config.get("github_owner")  # GitHub 使用者
-    repo_name = config.get("github_repo")    # GitHub Repository 名稱
+    repo_owner = config.get("github_owner")
+    repo_name = config.get("github_repo")
 
     if not repo_owner or not repo_name:
         return jsonify({"error": "GitHub owner or repo name not configured"}), 400

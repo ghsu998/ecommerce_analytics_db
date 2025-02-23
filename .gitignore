@@ -8,3 +8,6 @@ venv/
 # 忽略 IDE 相關文件
 .vscode/
 __pycache__/
+
+# 忽略配置檔案，防止密鑰洩漏
+config.json

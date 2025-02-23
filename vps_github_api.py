@@ -133,4 +133,8 @@ def list_files():
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
     print("🚀 Webhook 測試成功！")
+    print(f"載入的 API_ACCESS_TOKEN: {API_ACCESS_TOKEN}")
+    print(f"GITHUB_OWNER: {GITHUB_OWNER}")
+    print(f"GITHUB_REPO: {GITHUB_REPO}")
+    print(f"API_ACCESS_TOKEN: {API_ACCESS_TOKEN}")
 

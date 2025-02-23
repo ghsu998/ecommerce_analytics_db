@@ -45,26 +45,28 @@ def get_code():
     else:
         return jsonify({"error": "無法讀取 GitHub 檔案", "status": response.status_code}), 400
 
-# 🔹 GitHub Webhook - 自動更新代碼並重新啟動 Flask API
 @app.route("/webhook", methods=["POST"])
 def webhook():
     try:
-        # 只允許特定的 GitHub Push Event
+        # 只允許 GitHub Push 事件
         if request.headers.get("X-GitHub-Event") == "push":
-            repo_path = "/home/ubuntu/ecommerce_analytics_db"  # ❗請改成你的 Flask API 目錄
+            repo_path = "/home/ubuntu/ecommerce_analytics_db"  # ❗改成你的 Flask 目錄
 
-            # 執行 Git Pull 更新代碼
+            # 拉取最新代碼
             subprocess.run(["git", "-C", repo_path, "pull"], check=True)
 
-            # 重新啟動 Flask API
-            subprocess.run(["pkill", "-f", "gunicorn"])  # 停止 Gunicorn
-            subprocess.run(["gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "app:app", "--daemon"])  # 啟動 Gunicorn
+            # 停止舊的 Flask 進程（如果有）
+            subprocess.run(["pkill", "-f", "flask"])
 
-            return jsonify({"message": "Flask API 更新完成"}), 200
+            # 重新啟動 Flask API，並使用 nohup 讓它在背景運行
+            subprocess.run("nohup python3 /home/youruser/my_flask_project/app.py > /dev/null 2>&1 &", shell=True)
+
+            return jsonify({"message": "Flask API 更新完成（使用 nohup 運行）"}), 200
         else:
             return jsonify({"message": "不是 push 事件"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 # 🔹 啟動 Flask 服務
 if __name__ == "__main__":

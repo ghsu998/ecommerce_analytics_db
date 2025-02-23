@@ -1,3 +1,11 @@
+更新VPS JSON: scp -i /Users/gary/.ssh/LightsailDefaultKey-us-west-2.pem /Users/gary/Documents/GitHub/ecommerce_analytics_db/config.json ubuntu@35.165.219.251:/home/ubuntu/ecommerce_analytics_db/config.json
+
+更新github:
+git add .
+git commit -m "Update: API endpoint"
+git push origin main
+
+
 📌 第 1 層：數據來源層
 	•	OneDrive 雲端文件
         •	來源：Excel 報表（每日更新）

@@ -20,8 +20,14 @@ except Exception as e:
     print(f"❌ 無法讀取 `config.json`，錯誤: {e}")
     exit(1)
 
+# 讀取新增的 repo_path 和 script_path
 GITHUB_TOKEN = config.get("github_token")
 GITHUB_REPO = config.get("github_repo")
+REPO_PATH = config.get("repo_path")
+SCRIPT_PATH = config.get("script_path")
+
+# 你可以將 REPO_PATH 和 SCRIPT_PATH 用於 webhook 路徑等位置
+
 
 
 @app.route("/webhook", methods=["POST"])
@@ -72,10 +78,13 @@ def get_code():
 
 @app.route('/list_files', methods=['GET'])
 def list_files():
-    repo_owner = "your_username"      # 👈 替換成你的 GitHub 使用者名稱
-    repo_name = "your_repo_name"      # 👈 替換成你的 GitHub 專案名稱
-    github_api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents"
+    repo_owner = config.get("github_owner")  # 從 config.json 讀取 GitHub 使用者名稱
+    repo_name = config.get("github_repo")    # 從 config.json 讀取 GitHub 專案名稱
 
+    if not repo_owner or not repo_name:
+        return jsonify({"error": "GitHub owner or repo name not configured"}), 400
+
+    github_api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
 
     response = requests.get(github_api_url, headers=headers)

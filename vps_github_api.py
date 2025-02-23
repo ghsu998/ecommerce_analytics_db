@@ -51,7 +51,7 @@ def webhook():
         # 只允許 GitHub Push 事件
         if request.headers.get("X-GitHub-Event") == "push":
             repo_path = "/home/youruser/my_flask_project"  # ❗改成你的 Flask 目錄
-            script_path = "/home/youruser/my_flask_project/vps_github_api.py"  # ❗改成你的 Flask 主程式名稱
+            script_path = "/home/ubuntu/ecommerce_analytics_db/vps_github_api.py"  # ❗改成你的 Flask 主程式名稱
 
             # 拉取最新代碼
             subprocess.run(["git", "-C", repo_path, "pull"], check=True)

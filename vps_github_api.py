@@ -22,6 +22,10 @@ except Exception as e:
 GITHUB_TOKEN = config.get("github_token")
 GITHUB_REPO = config.get("github_repo")
 
+@app.route("/")
+def home():
+    return jsonify({"message": "Flask API is running! Use /get_code?file=filename to get GitHub files."})
+
 # 🔹 取得 GitHub 內的檔案內容
 @app.route("/get_code", methods=["GET"])
 def get_code():

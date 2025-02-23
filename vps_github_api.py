@@ -50,22 +50,24 @@ def webhook():
     try:
         # 只允許 GitHub Push 事件
         if request.headers.get("X-GitHub-Event") == "push":
-            repo_path = "/home/ubuntu/ecommerce_analytics_db"  # ❗改成你的 Flask 目錄
+            repo_path = "/home/youruser/my_flask_project"  # ❗改成你的 Flask 目錄
+            script_path = "/home/youruser/my_flask_project/vps_github_api.py"  # ❗改成你的 Flask 主程式名稱
 
             # 拉取最新代碼
             subprocess.run(["git", "-C", repo_path, "pull"], check=True)
 
             # 停止舊的 Flask 進程（如果有）
-            subprocess.run(["pkill", "-f", "flask"])
+            subprocess.run(["pkill", "-f", "vps_github_api.py"])
 
             # 重新啟動 Flask API，並使用 nohup 讓它在背景運行
-            subprocess.run("nohup python3 /home/youruser/my_flask_project/app.py > /dev/null 2>&1 &", shell=True)
+            subprocess.run(f"nohup python3 {script_path} > /dev/null 2>&1 &", shell=True)
 
             return jsonify({"message": "Flask API 更新完成（使用 nohup 運行）"}), 200
         else:
             return jsonify({"message": "不是 push 事件"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 # 🔹 啟動 Flask 服務

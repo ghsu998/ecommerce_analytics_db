@@ -23,27 +23,6 @@ except Exception as e:
 GITHUB_TOKEN = config.get("github_token")
 GITHUB_REPO = config.get("github_repo")
 
-@app.route("/")
-def home():
-    return jsonify({"message": "Flask API is running! Use /get_code?file=filename to get GitHub files."})
-
-# 🔹 取得 GitHub 內的檔案內容
-@app.route("/get_code", methods=["GET"])
-def get_code():
-    file_path = request.args.get("file")  # 從 API 參數取得檔案名稱
-    if not file_path:
-        return jsonify({"error": "請提供 file 參數"}), 400
-
-    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{file_path}"
-    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        content = response.json().get("content", "").encode('utf-8')
-        decoded_content = base64.b64decode(content).decode('utf-8')  # 解碼 Base64
-        return jsonify({"file": file_path, "content": decoded_content})
-    else:
-        return jsonify({"error": "無法讀取 GitHub 檔案", "status": response.status_code}), 400
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
@@ -68,6 +47,44 @@ def webhook():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/")
+def home():
+    return jsonify({"message": "Flask API is running! Use /get_code?file=filename to get GitHub files."})
+
+
+# 🔹 取得 GitHub 內的檔案內容
+@app.route("/get_code", methods=["GET"])
+def get_code():
+    file_path = request.args.get("file")  # 從 API 參數取得檔案名稱
+    if not file_path:
+        return jsonify({"error": "請提供 file 參數"}), 400
+
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{file_path}"
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        content = response.json().get("content", "").encode('utf-8')
+        decoded_content = base64.b64decode(content).decode('utf-8')  # 解碼 Base64
+        return jsonify({"file": file_path, "content": decoded_content})
+    else:
+        return jsonify({"error": "無法讀取 GitHub 檔案", "status": response.status_code}), 400
+
+@app.route('/list_files', methods=['GET'])
+def list_files():
+    repo_owner = "your_username"      # 👈 替換成你的 GitHub 使用者名稱
+    repo_name = "your_repo_name"      # 👈 替換成你的 GitHub 專案名稱
+    github_api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents"
+
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+
+    response = requests.get(github_api_url, headers=headers)
+
+    if response.status_code == 200:
+        file_list = [item['path'] for item in response.json()]
+        return jsonify({"files": file_list}), 200
+    else:
+        return jsonify({"error": "Unable to fetch file list", "details": response.json()}), response.status_code
 
 
 # 🔹 啟動 Flask 服務

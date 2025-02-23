@@ -2,11 +2,12 @@ import os
 import json
 import base64
 import requests
+import subprocess
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# 🔹 設定 config.json 的路徑（確保與 `vps_github_api.py` 在同一層級）
+# 🔹 設定 config.json 的路徑
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))  # 取得目前 .py 檔案所在的資料夾
 CONFIG_PATH = os.path.join(SCRIPT_DIR, "config.json")  # 設定 config.json 的完整路徑
 
@@ -43,6 +44,27 @@ def get_code():
         return jsonify({"file": file_path, "content": decoded_content})
     else:
         return jsonify({"error": "無法讀取 GitHub 檔案", "status": response.status_code}), 400
+
+# 🔹 GitHub Webhook - 自動更新代碼並重新啟動 Flask API
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    try:
+        # 只允許特定的 GitHub Push Event
+        if request.headers.get("X-GitHub-Event") == "push":
+            repo_path = "/home/ubuntu/ecommerce_analytics_db"  # ❗請改成你的 Flask API 目錄
+
+            # 執行 Git Pull 更新代碼
+            subprocess.run(["git", "-C", repo_path, "pull"], check=True)
+
+            # 重新啟動 Flask API
+            subprocess.run(["pkill", "-f", "gunicorn"])  # 停止 Gunicorn
+            subprocess.run(["gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "app:app", "--daemon"])  # 啟動 Gunicorn
+
+            return jsonify({"message": "Flask API 更新完成"}), 200
+        else:
+            return jsonify({"message": "不是 push 事件"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # 🔹 啟動 Flask 服務
 if __name__ == "__main__":

@@ -9,6 +9,14 @@ git push origin main
 同步github:
 git pull origin main
 
+停止 Flask 進程：
+pkill -f "flask"
+
+重新啟動 Flask：
+nohup python3 /path/to/your/flask/app.py > flask.log 2>&1 &
+
+
+
 📌 第 1 層：數據來源層
 	•	OneDrive 雲端文件
         •	來源：Excel 報表（每日更新）

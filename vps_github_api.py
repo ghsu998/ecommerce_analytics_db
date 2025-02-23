@@ -7,9 +7,17 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
+
+
 # 🔹 設定 config.json 的路徑
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))  # 取得目前 .py 檔案所在的資料夾
 CONFIG_PATH = os.path.join(SCRIPT_DIR, "config.json")  # 設定 config.json 的完整路徑
+
+@app.before_request
+def redirect_https():
+    if request.headers.get("X-Forwarded-Proto") == "http":
+        return jsonify({"error": "HTTPS only"}), 403
+
 
 # 🔹 讀取 GitHub 設定
 try:
@@ -78,8 +86,8 @@ def get_code():
 
 @app.route('/list_files', methods=['GET'])
 def list_files():
-    repo_owner = config.get("github_owner")  # 從 config.json 讀取 GitHub 使用者名稱
-    repo_name = config.get("github_repo")    # 從 config.json 讀取 GitHub 專案名稱
+    repo_owner = config.get("github_owner")  # GitHub 使用者
+    repo_name = config.get("github_repo")    # GitHub Repository 名稱
 
     if not repo_owner or not repo_name:
         return jsonify({"error": "GitHub owner or repo name not configured"}), 400

@@ -15,69 +15,16 @@ pkill -f "flask"
 重新啟動 Flask：
 nohup python3 /path/to/your/flask/app.py > flask.log 2>&1 &
 
+cd ~/ecommerce_analytics_db
+deactivate  # 確保退出虛擬環境
+rm -rf venv
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+pip freeze > requirements.txt
+
+
 4️⃣ 設置開機自動啟動
 sudo systemctl enable vps_github_api
 檢查運行狀態
 sudo systemctl status vps_github_api
-
-📌 第 1 層：數據來源層
-	•	OneDrive 雲端文件
-        •	來源：Excel 報表（每日更新）
-        •	主要文件：
-            •	Inventory Data
-            •	Sales Data
-            •	Payouts Data
-            •	SKU Analysis
-        •	存儲方式：每日自動更新
-	•	MySQL 數據庫
-        •	來源：Python 腳本同步 OneDrive 數據
-        •	主要數據表：
-            •	inventory_history_raw
-            •	data_sales
-            •	data_payouts
-            •	container_log
-    	•	存儲方式：結構化數據，提供歷史查詢與分析
-	•	本地文件（CSV / JSON）
-	    •	來源：手動或 API 提取
-	    •	主要用途：暫存數據或作為備份
-📌 第 2 層：數據處理層
-    •	Python 腳本（數據同步 & 清理）
-	    •	onedrive_sync_xxx.py（從 OneDrive 讀取並同步數據）
-	    •	auto_task.py（每日自動執行數據處理流程）
-	    •	SQL 清理腳本（清理 MySQL 數據，標準化字段）
-	•	數據清理 & 處理邏輯
-        •	清理空值與錯誤數據
-        •	動態更新 MySQL 表結構（欄位變更時自動同步）
-        •	設置主鍵（避免數據重複）
-📌 第 3 層：數據存儲層
-	•	MySQL 數據庫
-	•	設計模式：
-        •	原始數據表（raw data）
-        •	清理數據表（clean data）
-        •	聚合數據表（分析用）
-	•	鍵值設計：
-    	•	以 InventoryDate + SKU 為主鍵（確保每日唯一數據）
-	•	GitHub（代碼版本控制）
-        •	版本管理 & 自動化開發
-        •	確保所有 Python 腳本在最新狀態
-📌 第 4 層：數據應用層
-	•	Tableau / Power BI
-    	•	連接 MySQL 進行可視化分析
-    	•	設計關鍵指標報表（庫存預測、銷售趨勢）
-	•	AI / GPT 應用
-	    •	連接 MySQL & GitHub，自動提供優化建議
-	    •	自動生成 SQL 查詢，提高運營效率
-	    •	數據驅動決策：基於歷史數據優化 EOQ 模型
-	•	自動化運行機制
-	    •	CronJob / MacOS 自動化
-	    •	auto_task.py 每天執行 3 次確保數據同步
-	    •	監控數據更新狀況 & 失敗重試機制
-📌 未來擴展計劃
-	•	AI 數據分析 & 預測
-        •	機器學習庫存優化（自適應補貨算法）
-        •	銷售趨勢分析（根據平台 & 產品類別）
-    •	自動化 API 整合
-        •	直接讀取 SellerCloud / Amazon / Shopify API 數據
-        •	Web 界面管理數據處理 & 分析
-	•	進一步優化數據倉儲
-    	•	更好的數據存儲結構，支持多電商平台

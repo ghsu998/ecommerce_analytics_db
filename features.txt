@@ -15,7 +15,10 @@ pkill -f "flask"
 重新啟動 Flask：
 nohup python3 /path/to/your/flask/app.py > flask.log 2>&1 &
 
-
+4️⃣ 設置開機自動啟動
+sudo systemctl enable vps_github_api
+檢查運行狀態
+sudo systemctl status vps_github_api
 
 📌 第 1 層：數據來源層
 	•	OneDrive 雲端文件

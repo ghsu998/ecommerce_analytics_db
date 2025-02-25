@@ -32,11 +32,8 @@ mkdir ~/ecommerce_analytics_db
                         deactivate  # 確保退出虛擬環境
                             rm -rf venv
 
-
-
-
 更新VPS JSON:
-scp -i /Users/gary/.ssh/LightsailDefaultKey-us-west-2.pem /Users/gary/Documents/GitHub/ecommerce_analytics_db/config.json ubuntu@35.165.219.251:/home/ubuntu/ecommerce_analytics_db/config.json
+scp -i /Users/gary/.ssh/LightsailDefaultKey-us-west-2.pem /Users/gary/Documents/GitHub/ecommerce_analytics_db/config.json ubuntu@35.93.161.252:/home/ubuntu/ecommerce_analytics_db/config.json
 
 更新github:
 git add .

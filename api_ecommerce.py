@@ -22,15 +22,35 @@ REPO_PATH = config["repo_path"]  # 設置 repo_path
 @app.route("/github_webhook", methods=["POST"])
 def github_webhook():
     try:
-        # 使用具體的分支名稱，這裡是 main
         result = subprocess.run(
             ["git", "pull", "origin", "main"], cwd=REPO_PATH, check=True, capture_output=True, text=True
         )
-        # 返回標準輸出，方便檢查
         return jsonify({"status": "✅ 更新成功", "details": result.stdout}), 200
     except subprocess.CalledProcessError as e:
-        # 如果 git 命令失敗，返回錯誤信息
         return jsonify({"error": str(e), "details": e.stderr}), 500
 
+# 🔹 檢查 GitHub 代碼庫狀態
+@app.route("/check_code", methods=["GET"])
+def check_code():
+    try:
+        result = subprocess.run(
+            ["git", "status"], cwd=REPO_PATH, check=True, capture_output=True, text=True
+        )
+        return jsonify({"status": "✅ 檢查成功", "details": result.stdout}), 200
+    except subprocess.CalledProcessError as e:
+        return jsonify({"error": str(e), "details": e.stderr}), 500
+
+# 🔹 從 GitHub 拉取代碼
+@app.route("/pull_code", methods=["POST"])
+def pull_code():
+    try:
+        result = subprocess.run(
+            ["git", "pull", "origin", "main"], cwd=REPO_PATH, check=True, capture_output=True, text=True
+        )
+        return jsonify({"status": "✅ 拉取成功", "details": result.stdout}), 200
+    except subprocess.CalledProcessError as e:
+        return jsonify({"error": str(e), "details": e.stderr}), 500
+
+# 🔹 服務啟動
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -33,6 +33,8 @@ SYNC_TASKS = [
     ("/Users/gary/Documents/GitHub/ecommerce_analytics_db/onedrive_sync_data_weekly_sold_clean.py", "Data_Weekly_Sold_Clean 數據上傳", "python"),
     ("/Users/gary/Documents/GitHub/ecommerce_analytics_db/onedrive_sync_sku_analysis.py", "SKU_Analysis 數據上傳", "python"),
     ("/Users/gary/Documents/GitHub/ecommerce_analytics_db/onedrive_update_data_inventory_clean.py", "Data_Inventory_Clean 數據上傳", "python"),
+    ("/Users/gary/Documents/GitHub/ecommerce_analytics_db/onedrive_update_data_weekly_sales_raw.py", "data_weekly_sales_raw 數據上傳", "python"),
+
 ]
 
 # 🟢 執行 Python 腳本

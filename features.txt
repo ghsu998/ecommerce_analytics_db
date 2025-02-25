@@ -3,7 +3,7 @@ scp -i /Users/gary/.ssh/LightsailDefaultKey-us-west-2.pem /Users/gary/Documents/
 
 更新github:
 git add .
-git commit -m "Update: API endpoint"
+git commit -m "Update: Data_Weekly_Sales_Raw sync onedrive and mysql"
 git push origin main
 
 同步github:

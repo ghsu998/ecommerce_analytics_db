@@ -3,7 +3,7 @@ import subprocess
 import os
 from flask import Flask, request, jsonify
 
-app = Flask(__name__)
+app = Flask(__name__) # <---- 確保這裡的變數名稱是 `app`
 
 # 🟢 從環境變量中讀取 GitHub Token
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
@@ -50,6 +50,10 @@ def pull_code():
         return jsonify({"status": "✅ 拉取成功", "details": result.stdout}), 200
     except subprocess.CalledProcessError as e:
         return jsonify({"error": str(e), "details": e.stderr}), 500
+
+@app.route("/")
+def home():
+    return "Hello, API is running!"
 
 # 🔹 服務啟動
 if __name__ == "__main__":

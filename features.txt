@@ -32,6 +32,21 @@ mkdir ~/ecommerce_analytics_db
                         deactivate  # 確保退出虛擬環境
                             rm -rf venv
 
+#VPS HTTPS配置
+安裝 Nginx：
+    sudo apt update
+    sudo apt install nginx
+安裝 Certbot 來生成 SSL 證書：
+    sudo apt install certbot python3-certbot-nginx
+配置 Nginx
+    cd /etc/nginx/sites-available/
+    sudo nano ecommerce.taigers.com
+
+
+
+
+
+
 更新VPS JSON:
 scp -i /Users/gary/.ssh/LightsailDefaultKey-us-west-2.pem /Users/gary/Documents/GitHub/ecommerce_analytics_db/config.json ubuntu@35.93.161.252:/home/ubuntu/ecommerce_analytics_db/config.json
 

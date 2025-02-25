@@ -1,3 +1,40 @@
+VPS連線
+ssh -i ~/.ssh/LightsailDefaultKey-us-west-2.pem ubuntu@35.93.161.252
+
+VPS更新 / 安裝必要工具 / 設置防火牆
+sudo apt update && sudo apt upgrade -y
+    sudo apt install -y unzip git curl ufw
+        sudo ufw allow OpenSSH
+        sudo ufw allow 5000
+        sudo ufw enable
+
+VPS安裝Python 3.12.3
+sudo apt install -y python3 python3-pip python3-venv
+    python3 --version
+
+#VPS ssh 配置
+ssh -T git@github.com
+
+#VPS GITHUB API 配置
+curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user
+
+#VPS下載 GitHub Repo
+cd /path/to/your/directory
+git clone git@github.com:ghsu998/ecommerce_analytics_db.git
+
+#VPS創建Virtual Environment
+mkdir ~/ecommerce_analytics_db
+    cd ~/ecommerce_analytics_db
+        python3 -m venv venv
+            source venv/bin/activate
+                pip install -r requirements.txt
+                    pip freeze > requirements.txt
+                        deactivate  # 確保退出虛擬環境
+                            rm -rf venv
+
+
+
+
 更新VPS JSON:
 scp -i /Users/gary/.ssh/LightsailDefaultKey-us-west-2.pem /Users/gary/Documents/GitHub/ecommerce_analytics_db/config.json ubuntu@35.165.219.251:/home/ubuntu/ecommerce_analytics_db/config.json
 
@@ -15,13 +52,7 @@ pkill -f "flask"
 重新啟動 Flask：
 nohup python3 /path/to/your/flask/app.py > flask.log 2>&1 &
 
-cd ~/ecommerce_analytics_db
-deactivate  # 確保退出虛擬環境
-rm -rf venv
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-pip freeze > requirements.txt
+
 
 
 4️⃣ 設置開機自動啟動

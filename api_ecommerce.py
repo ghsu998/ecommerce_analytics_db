@@ -73,15 +73,36 @@ def get_tables():
     conn.close()
     return jsonify({"tables": tables})
 
-@app.route('/get_table_data/<table_name>', methods=['GET'])
-def get_table_data(table_name):
+@app.route('/query', methods=['POST'])
+def query_database():
+    data = request.json
+    query = data.get("query")
+
+    if not query:
+        return jsonify({"error": "Missing SQL query"}), 400
+
+    # 允許的 SQL 關鍵字（只允許 SELECT 查詢）
+    ALLOWED_KEYWORDS = ["SELECT", "FROM", "WHERE", "LIMIT", "ORDER BY", "GROUP BY"]
+    if not any(keyword in query.upper() for keyword in ALLOWED_KEYWORDS):
+        return jsonify({"error": "Only SELECT queries are allowed"}), 403
+
+    # 限制返回的行數，避免查詢過大影響效能
+    if "LIMIT" not in query.upper():
+        query += " LIMIT 100"
+
+    # 連接 MySQL
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    query = f"SELECT * FROM {table_name}"
-    cursor.execute(query)
-    data = cursor.fetchall()
-    conn.close()
-    return jsonify({"table_name": table_name, "data": data})
+
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()
+        conn.close()
+        return jsonify({"data": result})
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 400
+
 
 # 🔹 服務啟動
 if __name__ == "__main__":

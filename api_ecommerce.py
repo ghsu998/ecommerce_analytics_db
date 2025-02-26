@@ -53,7 +53,7 @@ def pull_code():
 
 @app.route("/")
 def home():
-    return "Hello, API is running!"
+    return "Hello, api_ecommerce is running!"
 
 # 🔹 服務啟動
 if __name__ == "__main__":

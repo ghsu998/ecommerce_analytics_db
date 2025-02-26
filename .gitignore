@@ -12,3 +12,5 @@ __pycache__/
 # 忽略配置檔案，防止密鑰洩漏
 config.json
 nohup.out
+command_features.txt
+command_vps.txt

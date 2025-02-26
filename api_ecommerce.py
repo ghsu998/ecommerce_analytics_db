@@ -29,31 +29,30 @@ def github_webhook():
     except subprocess.CalledProcessError as e:
         return jsonify({"error": str(e), "details": e.stderr}), 500
 
-# 🔹 檢查 GitHub 代碼庫狀態
-@app.route("/check_code", methods=["GET"])
-def check_code():
-    try:
-        result = subprocess.run(
-            ["git", "status"], cwd=REPO_PATH, check=True, capture_output=True, text=True
-        )
-        return jsonify({"status": "✅ 檢查成功", "details": result.stdout}), 200
-    except subprocess.CalledProcessError as e:
-        return jsonify({"error": str(e), "details": e.stderr}), 500
-
-# 🔹 從 GitHub 拉取代碼
-@app.route("/pull_code", methods=["POST"])
-def pull_code():
-    try:
-        result = subprocess.run(
-            ["git", "pull", "origin", "main"], cwd=REPO_PATH, check=True, capture_output=True, text=True
-        )
-        return jsonify({"status": "✅ 拉取成功", "details": result.stdout}), 200
-    except subprocess.CalledProcessError as e:
-        return jsonify({"error": str(e), "details": e.stderr}), 500
-
+# API 首頁
 @app.route("/")
 def home():
     return "Hello, api_ecommerce is running!"
+
+
+@app.route("/get_all_files", methods=["GET"])
+def get_all_files():
+    try:
+        file_data = {}
+
+        # 獲取 REPO_PATH 內所有 .py 檔案
+        for file_name in os.listdir(REPO_PATH):
+            file_path = os.path.join(REPO_PATH, file_name)
+
+            # 只讀取 Python 檔案，確保是普通檔案
+            if file_name.endswith(".py") and os.path.isfile(file_path):
+                with open(file_path, "r", encoding="utf-8") as f:
+                    file_data[file_name] = f.read()
+
+        return jsonify({"files": file_data}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # 🔹 服務啟動
 if __name__ == "__main__":

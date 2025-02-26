@@ -48,7 +48,17 @@ def get_all_files():
             # 只讀取 Python 檔案，確保是普通檔案
             if file_name.endswith(".py") and os.path.isfile(file_path):
                 with open(file_path, "r", encoding="utf-8") as f:
-                    file_data[file_name] = f.read()
+                    file_content = f.read()
+                    file_data[file_name] = file_content
+
+        # 在終端輸出所有檔案的內容
+        print("\n=== 獲取的 Python 檔案內容 ===")
+        for name, content in file_data.items():
+            print(f"\n📂 檔案名稱: {name}")
+            print("----- 內容開始 -----")
+            print(content[:500])  # 只顯示前 500 個字元
+            print("... (內容省略)")
+            print("----- 內容結束 -----\n")
 
         return jsonify({"files": file_data}), 200
     except Exception as e:

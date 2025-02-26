@@ -2,6 +2,7 @@ import json
 import subprocess
 import os
 from flask import Flask, request, jsonify
+from database import get_db_connection
 
 app = Flask(__name__) # <---- 確保這裡的變數名稱是 `app`
 
@@ -53,6 +54,24 @@ def get_all_files():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/get_tables', methods=['GET'])
+def get_tables():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SHOW TABLES")
+    tables = [table[0] for table in cursor.fetchall()]
+    conn.close()
+    return jsonify({"tables": tables})
+
+@app.route('/get_table_data/<table_name>', methods=['GET'])
+def get_table_data(table_name):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    query = f"SELECT * FROM {table_name}"
+    cursor.execute(query)
+    data = cursor.fetchall()
+    conn.close()
+    return jsonify({"table_name": table_name, "data": data})
 
 # 🔹 服務啟動
 if __name__ == "__main__":

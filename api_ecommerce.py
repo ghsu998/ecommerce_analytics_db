@@ -3,8 +3,12 @@ import subprocess
 import os
 from flask import Flask, request, jsonify
 from database import get_db_connection
+from flask_cors import CORS
 
 app = Flask(__name__) # <---- 確保這裡的變數名稱是 `app`
+CORS(app)  # Enable CORS for all routes
+#CORS(app, resources={r"/api/*": {"origins": "*"}})  # Enable CORS for API routes only
+
 
 # 🟢 從環境變量中讀取 GitHub Token
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
@@ -17,10 +21,12 @@ if not GITHUB_TOKEN:
 with open("/home/ubuntu/ecommerce_analytics_db/config.json", "r") as f:
     config = json.load(f)
 
-REPO_PATH = config["repo_path"]  # 設置 repo_path
+REPO_PATH = config["repo_path"]  # 設置 repo_path VPS項目路徑
+
+
 
 # 🔹 GitHub Webhook: 自動拉取最新代碼
-@app.route("/github_webhook", methods=["POST"])
+@app.route("/api/github_webhook", methods=["POST"])
 def github_webhook():
     try:
         result = subprocess.run(
@@ -31,7 +37,7 @@ def github_webhook():
         return jsonify({"error": str(e), "details": e.stderr}), 500
 
 # API 首頁
-@app.route("/")
+@app.route("/api/")
 def home():
     return "Hello, api_ecommerce is running!"
 

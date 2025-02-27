@@ -35,7 +35,7 @@ def github_webhook():
 def home():
     return "Hello, api_ecommerce is running!"
 
-# API REPO_PATH
+# API Get VPS服務器保存代碼
 @app.route("/get_all_files", methods=["GET"])
 def get_all_files():
     try:
@@ -64,6 +64,7 @@ def get_all_files():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+#API Get Mysql tables
 @app.route('/get_tables', methods=['GET'])
 def get_tables():
     conn = get_db_connection()
@@ -73,6 +74,7 @@ def get_tables():
     conn.close()
     return jsonify({"tables": tables})
 
+#API Post Query Mysql tables
 @app.route('/query', methods=['POST'])
 def query_database():
     data = request.json

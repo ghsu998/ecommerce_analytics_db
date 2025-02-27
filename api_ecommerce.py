@@ -14,10 +14,10 @@ with open("/home/ubuntu/ecommerce_analytics_db/config.json", "r") as f:
 
 # 從 config.json 加載設置
 REPO_PATH = config["repo_path"]
-GITHUB_OWNER = config["github_owner"]
-GITHUB_REPO = config["github_repo"]
+GITHUB_OWNER = "ghsu998"
+GITHUB_REPO = "ecommerce_analytics_db"
 GITHUB_TOKEN = config["github_token"]
-GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents"
+GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/"
 
 # API 首頁
 @app.route("/api/")

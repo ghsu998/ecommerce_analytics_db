@@ -1,6 +1,6 @@
 import requests
 
-url = "https://ecommerce.taigers.com/get_all_files"
+url = "https://ecommerce.taigers.com/api/get_all_files"
 
 # 如果 API 需要 Token，請加上 Authorization 標頭
 headers = {
@@ -13,3 +13,9 @@ try:
     print("✅ API Response:", response.json())  # 以 JSON 形式打印回應
 except requests.exceptions.RequestException as e:
     print("❌ Error:", e)
+
+
+
+import secrets
+api_key = secrets.token_hex(32)  # 生成 64 字元（32 byte）隨機 API Key
+print(api_key)

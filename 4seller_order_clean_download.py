@@ -18,7 +18,7 @@ try:
     df = pd.read_sql(query, engine)  # ✅ 使用 SQLAlchemy 來執行 SQL 查詢
 
     # 4️⃣ 存入 Excel
-    excel_path = "/Users/gary/Documents/business_Analysis/Data/order_4seller_clean.xlsx"
+    excel_path = "/Users/gary/Documents/business_Analysis/Data/4seller_order_clean.xlsx"
     df.to_excel(excel_path, index=False)
 
     print(f"✅ 數據已導出至 {excel_path}")

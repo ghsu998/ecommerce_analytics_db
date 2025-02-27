@@ -8,7 +8,7 @@ from flask_cors import CORS
 from functools import wraps
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)  # 啟用 CORS，允許跨域請求
 
 # 讀取 config.json
 with open("/home/ubuntu/ecommerce_analytics_db/config.json", "r") as f:
@@ -28,7 +28,7 @@ def require_api_key(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get("Authorization")
-        if not api_key or api_key.split("Bearer ")[-1] != API_KEY:
+        if not api_key or not api_key.startswith("Bearer ") or api_key.split("Bearer ")[-1] != API_KEY:
             return jsonify({"error": "Invalid API Key"}), 403
         return f(*args, **kwargs)
     return decorated_function
@@ -53,10 +53,15 @@ def get_all_files():
         for file in files:
             if file["name"].endswith(".py"):  # 只獲取 .py 文件
                 file_url = file["download_url"]
-                file_content = requests.get(file_url).text
-                file_data[file["name"]] = file_content
+                try:
+                    file_content = requests.get(file_url).text
+                    file_data[file["name"]] = file_content
+                except Exception as e:
+                    file_data[file["name"]] = f"Error fetching file: {str(e)}"
 
         return jsonify({"files": file_data}), 200
+    elif response.status_code == 403:  # GitHub API 限流
+        return jsonify({"error": "GitHub API rate limit exceeded. Try again later."}), 429
     else:
         return jsonify({"error": f"GitHub API error: {response.status_code}"}), 500
 
@@ -79,13 +84,17 @@ def query_database():
     query = data.get("query")
     if not query:
         return jsonify({"error": "Missing SQL query"}), 400
+    
     ALLOWED_KEYWORDS = ["SELECT", "FROM", "WHERE", "LIMIT", "ORDER BY", "GROUP BY"]
     if not any(keyword in query.upper() for keyword in ALLOWED_KEYWORDS):
         return jsonify({"error": "Only SELECT queries are allowed"}), 403
+    
     if "LIMIT" not in query.upper():
         query += " LIMIT 100"
+    
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+    
     try:
         cursor.execute(query)
         result = cursor.fetchall()
@@ -99,13 +108,18 @@ def query_database():
 @app.route("/api/github_webhook", methods=["POST"])
 @require_api_key
 def github_webhook():
+    """觸發 GitHub Webhook 自動同步代碼"""
     try:
         result = subprocess.run(
-            ["git", "pull", "origin", "main"], cwd=REPO_PATH, check=True, capture_output=True, text=True
+            ["git", "pull", "origin", "main"],
+            cwd=REPO_PATH,
+            check=True,
+            capture_output=True,
+            text=True
         )
         return jsonify({"status": "✅ 更新成功", "details": result.stdout}), 200
     except subprocess.CalledProcessError as e:
-        return jsonify({"error": str(e), "details": e.stderr}), 500
+        return jsonify({"error": "Git pull failed", "details": e.stderr}), 500
 
 # 服務啟動
 if __name__ == "__main__":

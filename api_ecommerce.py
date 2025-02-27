@@ -36,7 +36,7 @@ def home():
     return "Hello, api_ecommerce is running!"
 
 # API Get VPS服務器保存代碼
-@app.route("/get_all_files", methods=["GET"])
+@app.route("/api/get_all_files", methods=["GET"])
 def get_all_files():
     try:
         file_data = {}
@@ -65,7 +65,7 @@ def get_all_files():
         return jsonify({"error": str(e)}), 500
 
 #API Get Mysql tables
-@app.route('/get_tables', methods=['GET'])
+@app.route('/api/get_tables', methods=['GET'])
 def get_tables():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -75,7 +75,7 @@ def get_tables():
     return jsonify({"tables": tables})
 
 #API Post Query Mysql tables
-@app.route('/query', methods=['POST'])
+@app.route('/api/query', methods=['POST'])
 def query_database():
     data = request.json
     query = data.get("query")

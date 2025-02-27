@@ -13,4 +13,4 @@ __pycache__/
 config.json
 nohup.out
 command_features.txt
-command_vps.txt
+command_vps.txtgunicorn.log

@@ -16,3 +16,4 @@ command_features.txt
 command_vps.txt
 gunicorn.log
 task_log.log
+command.txt

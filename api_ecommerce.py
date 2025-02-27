@@ -4,6 +4,7 @@ import os
 from flask import Flask, request, jsonify
 from database import get_db_connection
 from flask_cors import CORS
+from functools import wraps
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -21,6 +22,15 @@ def check_api_key():
     if not api_key or api_key != f"Bearer {API_KEY}":
         return jsonify({"error": "Invalid API Key"}), 403
 
+def require_api_key(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        api_key = request.headers.get("Authorization")
+        if not api_key or api_key != API_KEY:
+            return jsonify({"error": "Invalid API Key"}), 403
+        return f(*args, **kwargs)
+    return decorated_function
+
 # API 首頁
 @app.route("/api/")
 def home():
@@ -28,6 +38,7 @@ def home():
 
 # API Get VPS服務器保存代碼
 @app.route("/api/get_all_files", methods=["GET"])
+@require_api_key
 def get_all_files():
     auth_error = check_api_key()
     if auth_error:
@@ -45,6 +56,7 @@ def get_all_files():
 
 # API Get MySQL tables
 @app.route('/api/get_tables', methods=['GET'])
+@require_api_key
 def get_tables():
     auth_error = check_api_key()
     if auth_error:
@@ -58,6 +70,7 @@ def get_tables():
 
 # API Post Query MySQL tables
 @app.route('/api/query', methods=['POST'])
+@require_api_key
 def query_database():
     auth_error = check_api_key()
     if auth_error:

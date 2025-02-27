@@ -1,6 +1,7 @@
 import json
 import subprocess
 import os
+import requests
 from flask import Flask, request, jsonify
 from database import get_db_connection
 from flask_cors import CORS
@@ -13,20 +14,21 @@ CORS(app)  # Enable CORS for all routes
 with open("/home/ubuntu/ecommerce_analytics_db/config.json", "r") as f:
     config = json.load(f)
 
-REPO_PATH = config["repo_path"]  # 設置 repo_path VPS項目路徑
-API_KEY = config.get("ecommerce_api_token")  # 讀取 API Key
+REPO_PATH = config["repo_path"]  # VPS 項目路徑
+API_KEY = config.get("ecommerce_api_token")  # API Key
 
-def check_api_key():
-    """驗證 API Key"""
-    api_key = request.headers.get("Authorization")
-    if not api_key or api_key != f"Bearer {API_KEY}":
-        return jsonify({"error": "Invalid API Key"}), 403
+# GitHub 配置
+GITHUB_OWNER = config["github_owner"]
+GITHUB_REPO = config["github_repo"]
+GITHUB_TOKEN = config["github_token"]
+GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents"
 
+# API Token 驗證裝飾器
 def require_api_key(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get("Authorization")
-        if not api_key or api_key != API_KEY:
+        if not api_key or api_key.split("Bearer ")[-1] != API_KEY:
             return jsonify({"error": "Invalid API Key"}), 403
         return f(*args, **kwargs)
     return decorated_function
@@ -36,31 +38,32 @@ def require_api_key(f):
 def home():
     return "Hello, api_ecommerce is running!"
 
-# API Get VPS服務器保存代碼
+# API Get GitHub 最新代碼
 @app.route("/api/get_all_files", methods=["GET"])
 @require_api_key
 def get_all_files():
-    auth_error = check_api_key()
-    if auth_error:
-        return auth_error
-    try:
+    """從 GitHub Repo 獲取最新的 .py 代碼"""
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    response = requests.get(GITHUB_API_URL, headers=headers)
+
+    if response.status_code == 200:
         file_data = {}
-        for file_name in os.listdir(REPO_PATH):
-            file_path = os.path.join(REPO_PATH, file_name)
-            if file_name.endswith(".py") and os.path.isfile(file_path):
-                with open(file_path, "r", encoding="utf-8") as f:
-                    file_data[file_name] = f.read()
+        files = response.json()
+
+        for file in files:
+            if file["name"].endswith(".py"):  # 只獲取 .py 文件
+                file_url = file["download_url"]
+                file_content = requests.get(file_url).text
+                file_data[file["name"]] = file_content
+
         return jsonify({"files": file_data}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    else:
+        return jsonify({"error": f"GitHub API error: {response.status_code}"}), 500
 
 # API Get MySQL tables
 @app.route('/api/get_tables', methods=['GET'])
 @require_api_key
 def get_tables():
-    auth_error = check_api_key()
-    if auth_error:
-        return auth_error
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SHOW TABLES")
@@ -72,9 +75,6 @@ def get_tables():
 @app.route('/api/query', methods=['POST'])
 @require_api_key
 def query_database():
-    auth_error = check_api_key()
-    if auth_error:
-        return auth_error
     data = request.json
     query = data.get("query")
     if not query:
@@ -97,10 +97,8 @@ def query_database():
 
 # GitHub Webhook: 自動拉取最新代碼
 @app.route("/api/github_webhook", methods=["POST"])
+@require_api_key
 def github_webhook():
-    auth_error = check_api_key()
-    if auth_error:
-        return auth_error
     try:
         result = subprocess.run(
             ["git", "pull", "origin", "main"], cwd=REPO_PATH, check=True, capture_output=True, text=True

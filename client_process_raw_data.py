@@ -14,7 +14,7 @@ from api_microsoft_onedrive_functions import (
     upload_onedrive_file, list_onedrive_files, authenticate_microsoft
 )
 
-TEST_MODE = True
+TEST_MODE = False
 TEST_CLIENTS = ["client_001", "client_003"]
 
 def extract_dates_from_filename(filename):

@@ -10,10 +10,9 @@ venv/
 __pycache__/
 
 # 忽略配置檔案，防止密鑰洩漏
-config.json
-nohup.out
-command_features.txt
-command_vps.txt
-gunicorn.log
-task_log.log
-command.txt
+
+auto_task_localhost.py
+auto_task_localhost_log.txt
+app_a_command.txt
+app_config.json
+

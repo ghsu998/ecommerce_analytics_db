@@ -1,6 +1,7 @@
 import subprocess
 from app_config import logger
 
+
 # 定義要執行的任務
 TASKS = {
     "data_cleaning": "python client_process_raw_data.py"

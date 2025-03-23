@@ -108,6 +108,10 @@ def process_client_raw_data(client_id, storage_type, service, user_email):
 
         if df_list:
             df_raw_combined = pd.concat(df_list, ignore_index=True)
+            
+            # **這裡額外清理合併後的 df 欄位名稱**
+            df_raw_combined = clean_column_names(df_raw_combined)
+            
             df_raw_combined.drop_duplicates(subset=primary_keys, inplace=True)
 
             output = io.BytesIO()
@@ -135,9 +139,11 @@ def main():
     microsoft_token = authenticate_microsoft()
 
     for client_id in clients:
-        process_client_raw_data(client_id, "google_drive" if client_id == "client_001" else "onedrive", google_service if client_id == "client_001" else microsoft_token, None)
-
-    logger.info("🎯 **所有客戶數據處理完成！**")
+        client_info = get_client_data_settings(client_id)
+        storage_type = client_info.get("storage_type", "google_drive")  # 預設 Google Drive
+        service = google_service if storage_type == "google_drive" else microsoft_token
+        process_client_raw_data(client_id, storage_type, service, None)
+        logger.info("🎯 **所有客戶數據處理完成！**")
 
 if __name__ == "__main__":
     main()

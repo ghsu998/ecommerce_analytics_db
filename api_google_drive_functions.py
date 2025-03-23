@@ -1,6 +1,8 @@
 import io
 from googleapiclient.errors import HttpError
+from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
+from googleapiclient.http import MediaFileUpload
 from api_google import get_google_drive_service
 from app_config import get_config_value, logger
 
@@ -79,6 +81,19 @@ def download_gdrive_file_to_memory(service, file_id):
     - **回傳**: `bytes` 檔案內容 (成功) 或 `None` (失敗)
     """
     try:
+        # 取得檔案資訊
+        file_metadata = service.files().get(fileId=file_id, fields="name, mimeType").execute()
+        file_name = file_metadata.get("name", "未知檔案")
+        mime_type = file_metadata.get("mimeType", "")
+
+        # 確保檔案是 Excel / CSV 格式
+        if mime_type not in [
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # Excel (xlsx)
+            "application/vnd.ms-excel",  # Excel (xls)
+            "text/csv"  # CSV
+        ]:
+            logger.warning(f"⚠️ 檔案 `{file_name}` 不是 Excel/CSV 格式，可能無法解析 (MIME: {mime_type})")
+        
         request = service.files().get_media(fileId=file_id)
         file_stream = io.BytesIO()
         downloader = MediaIoBaseDownload(file_stream, request)
@@ -87,8 +102,15 @@ def download_gdrive_file_to_memory(service, file_id):
         while not done:
             status, done = downloader.next_chunk()
 
-        logger.info(f"✅ 檔案 `{file_id}` 下載完成 (記憶體模式)")
-        return file_stream.getvalue()
+        # **確保指針回到開頭**
+        file_stream.seek(0)
+        file_data = file_stream.getvalue()
+
+        # **記錄下載大小**
+        logger.info(f"✅ `{file_name}` 下載完成 (大小: {len(file_data)} bytes)")
+
+        return file_data
+
     except HttpError as e:
         logger.error(f"❌ 無法下載 `{file_id}`: {e}")
         return None
@@ -164,10 +186,9 @@ def list_gdrive_files(service, folder_id):
                 logger.warning(f"⚠️ `{folder_id}` 內沒有任何檔案")
                 return []
 
-            # ✅ 確保 'name' 鍵存在，避免 KeyError
             for f in files:
                 file_id = f.get("id")
-                file_name = f.get("name", "UNKNOWN_FILE_NAME")  # 如果 name 缺失，填充預設值
+                file_name = f.get("name", "UNKNOWN_FILE_NAME")
                 logger.info(f"📂 {file_name} (ID: {file_id})")
                 files_list.append({"file_id": file_id, "file_name": file_name})
 
@@ -181,7 +202,77 @@ def list_gdrive_files(service, folder_id):
     except HttpError as e:
         logger.error(f"❌ Google Drive API 查詢 `{folder_id}` 內檔案失敗: {e}")
         return []
+
+
+def convert_xlsx_to_google_sheet(service, xlsx_file_id, sheet_name, client_folder_id):
+    """
+    📤 **將 .xlsx 轉換為 Google Sheets**
+    ✅ 如果已經存在同名 Google Sheets，則覆蓋其內容，而不改變檔案 ID。
     
+    :param service: Google Drive API 服務對象
+    :param xlsx_file_id: `.xlsx` 檔案的 Google Drive ID
+    :param sheet_name: 轉換後的 Google Sheets 名稱
+    :param client_folder_id: 該客戶的 Google Drive 資料夾 ID
+    :return: `Google Sheets ID` (成功) 或 `None` (失敗)
+    """
+
+    try:
+        # 🔍 **Step 1: 確保 `client_folder_id` 正確**
+        if not client_folder_id:
+            logger.error("❌ `client_folder_id` 為空，無法查找 Google Sheets！")
+            return None
+
+        # 🔍 **Step 2: 查找是否已有同名 Google Sheets**
+        existing_files = list_gdrive_files(service, client_folder_id)  # 搜索當前客戶資料夾內的檔案
+        google_sheet_id = None
+
+        for file in existing_files:
+            if file["file_name"] == sheet_name:
+                google_sheet_id = file["file_id"]
+                logger.info(f"✅ 已找到現有 Google Sheets: {sheet_name} (ID: {google_sheet_id})，將覆蓋內容...")
+                break
+
+        # 📥 **Step 3: 下載 `.xlsx` 文件**
+        logger.info(f"📥 下載 `{sheet_name}.xlsx` (ID: {xlsx_file_id})...")
+        request = service.files().get_media(fileId=xlsx_file_id)
+        fh = io.BytesIO()
+        downloader = MediaIoBaseDownload(fh, request)
+        done = False
+        while not done:
+            status, done = downloader.next_chunk()
+            logger.info(f"📥 下載進度: {int(status.progress() * 100)}%")
+
+        fh.seek(0)  # **確保指針回到開頭**
+
+        # 🔄 **Step 4: 覆蓋 Google Sheets (若已存在)**
+        if google_sheet_id:
+            logger.info(f"🔄 覆蓋 Google Sheets (ID: {google_sheet_id}) 的內容...")
+            media = MediaIoBaseUpload(fh, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", resumable=True)
+            updated_file = service.files().update(
+                fileId=google_sheet_id,
+                media_body=media
+            ).execute()
+            return google_sheet_id
+
+        # ➕ **Step 5: 如果 Google Sheets 不存在，創建新檔案**
+        logger.info(f"➕ 新增 Google Sheets `{sheet_name}`...")
+        file_metadata = {
+            'name': sheet_name,
+            'mimeType': 'application/vnd.google-apps.spreadsheet',
+            'parents': [client_folder_id]  # **確保檔案放在正確的客戶資料夾內**
+        }
+        media = MediaIoBaseUpload(fh, mimetype="application/vnd.ms-excel", resumable=True)
+        created_file = service.files().create(
+            body=file_metadata,
+            media_body=media
+        ).execute()
+
+        return created_file["id"]
+
+    except HttpError as e:
+        logger.error(f"❌ Google Drive API 轉換 `{sheet_name}` 失敗: {e}")
+        return None
+
 if __name__ == "__main__":
     """
     🚀 **測試 Google Drive API 功能**

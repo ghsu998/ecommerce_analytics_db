@@ -130,6 +130,8 @@ def update_client_primary_keys(client_id, prefix, cleaned_keys):
         if connection:
             connection.close()
 
+
+
 # ✅ **測試區塊**
 if __name__ == "__main__":
     logger.info("🚀 測試 `client_file_mapping_config.py`")

@@ -216,36 +216,28 @@ def create_real_estate_entry(data):
     payload = {
         "parent": {"database_id": database_id},
         "properties": {
-            "Purchase Date": {
-                "date": {"start": str(data.purchase_date)}
-            },
-            "Purchase Price": {
-                "number": data.purchase_price
-            },
-            "Property Address": {
-                "rich_text": [{"text": {"content": data.property_address}}]
-            },
-            "Monthly Cash Flow": {
-                "number": data.monthly_cash_flow
-            },
-            "Notes": {
-                "rich_text": [{"text": {"content": data.notes or ""}}]
-            },
-            "Loan Amount": {
-                "number": data.loan_amount
-            },
-            "Strategy": {
-                "rich_text": [{"text": {"content": data.strategy or ""}}]
-            },
-            "Title": {
-                "title": [{"text": {"content": f"{data.property_address} Real Estate"}}]
-            }
+            "Purchase Date": {"date": {"start": str(data.purchase_date)}},
+            "Purchase Price": {"number": data.purchase_price},
+            "Loan Amount": {"number": data.loan_amount},
+            "Property Address": {"rich_text": [{"text": {"content": data.property_address}}]},
+            "Strategy": {"rich_text": [{"text": {"content": data.strategy or ""}}]},
+            "Monthly Cash Flow": {"number": data.monthly_cash_flow},
+
+            # 🆕 新增欄位
+            "Monthly Mortgage Payment": {"number": data.monthly_mortgage_payment},
+            "Monthly Property Taxes": {"number": data.monthly_property_taxes},
+            "Monthly Insurance": {"number": data.monthly_insurance},
+            "Monthly Utility Expenses": {"number": data.monthly_utility_expenses},
+
+            "Notes": {"rich_text": [{"text": {"content": data.notes or ""}}]},
+            "Title": {"title": [{"text": {"content": f"{data.property_address} Real Estate"}}]}
         }
     }
 
     url = "https://api.notion.com/v1/pages"
     res = requests.post(url, headers=HEADERS, json=payload)
     return res.status_code, res.json()
+
 
 #4.1 Email Identity DB
 def create_email_identity(data):

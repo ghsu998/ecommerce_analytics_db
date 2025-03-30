@@ -99,7 +99,7 @@ def create_personal_tax(data):
     res = requests.post(url, headers=HEADERS, json=payload)
     return res.status_code, res.json()
 
-#2.2 Business Annual Tax Filing Summary
+# 2.2 Business Annual Tax Filing Summary
 def create_business_tax(data):
     database_id = "1c42a656-d251-803b-b514-e843e5039cdd"
 
@@ -122,7 +122,7 @@ def create_business_tax(data):
                 "number": data.franchise_tax
             },
             "Notes": {
-                "rich_text": [{"text": {"content": data.notes}}]
+                "rich_text": [{"text": {"content": data.notes or ""}}]
             },
             "Total Revenue": {
                 "number": data.total_revenue
@@ -135,13 +135,20 @@ def create_business_tax(data):
             },
             "Title": {
                 "title": [{"text": {"content": f"{data.business_name} - {data.tax_year}"}}]
-            }
+            },
+            "Net Income / Loss": {
+                "number": data.net_income
+            },
+            "Total Expenses": {
+                "number": data.total_expenses
+            },
         }
     }
 
     url = "https://api.notion.com/v1/pages"
     res = requests.post(url, headers=HEADERS, json=payload)
     return res.status_code, res.json()
+
 
 #3.1 Stock Strategy Log
 def create_stock_strategy(data):

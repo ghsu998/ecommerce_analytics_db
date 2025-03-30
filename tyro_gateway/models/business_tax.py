@@ -2,14 +2,20 @@
 
 from pydantic import BaseModel
 from datetime import date
+from typing import Optional
 
 class BusinessTaxInput(BaseModel):
-    entity_type: str
-    cogs: float
     business_name: str
+    entity_type: str
     tax_year: int
-    franchise_tax: float
-    notes: str
     total_revenue: float
+    cogs: float
+    franchise_tax: float
     estimated_tax_paid: float
-    filing_date: date
+    filing_date: str  # "YYYY-MM-DD"
+    notes: Optional[str] = None
+
+    # 新增欄位
+    net_income: Optional[float] = None
+    total_expenses: Optional[float] = None
+

@@ -1,21 +1,16 @@
-#models/business_tax.py
-
-from pydantic import BaseModel
-from datetime import date
+from pydantic import BaseBusinessTax
 from typing import Optional
+from datetime import date
 
-class BusinessTaxInput(BaseModel):
-    business_name: str
+class BusinessTax(BaseBusinessTax):
     entity_type: str
-    tax_year: int
-    total_revenue: float
     cogs: float
+    business_name: str
+    tax_year: int
+    total_expenses: Optional[float]
+    net_income: Optional[float]
     franchise_tax: float
+    notes: Optional[str]
+    total_revenue: float
     estimated_tax_paid: float
-    filing_date: str  # "YYYY-MM-DD"
-    notes: Optional[str] = None
-
-    # 新增欄位
-    net_income: Optional[float] = None
-    total_expenses: Optional[float] = None
-
+    filing_date: date

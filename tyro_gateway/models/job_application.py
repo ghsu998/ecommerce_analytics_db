@@ -1,13 +1,12 @@
-# models/job_application.py
-
-from pydantic import BaseModel
+from pydantic import BaseJobApplication
 from typing import Optional
 from datetime import date
 
-class JobApplicationInput(BaseModel):
+class JobApplication(BaseJobApplication):
     date_applied: date
-    job_title: str
-    company_name: str
-    status: str
     job_type: str
-    notes: Optional[str] = None
+    status: str
+    resume_version: str
+    company_name: str
+    notes: Optional[str]
+    job_title: str

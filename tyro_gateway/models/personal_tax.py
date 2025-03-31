@@ -1,10 +1,8 @@
-# models/personal_tax.py
-
-from pydantic import BaseModel
-from datetime import date
+from pydantic import BasePersonalTax
 from typing import Optional
+from datetime import date
 
-class PersonalTaxInput(BaseModel):
+class PersonalTax(BasePersonalTax):
     total_tax: float
     agi: float
     tax_platform: str
@@ -12,4 +10,4 @@ class PersonalTaxInput(BaseModel):
     filing_date: date
     withholding_paid: float
     refund_due: float
-    notes: Optional[str] = ""
+    notes: Optional[str]

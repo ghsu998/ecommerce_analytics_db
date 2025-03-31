@@ -58,25 +58,29 @@ def fetch_schema(database_name, database_id):
     print()
 
 # 🧠 3. 主函數：先按模組分群，再印出 schema
+# 🧠 3. 主函數：先按模組分群，再印出 schema
 def main():
     grouped_dbs = fetch_all_databases_grouped()
     print("# 🧠 TYRO Database Schema (Auto-Fetched)\n")
 
+    module_titles = {
+        "1": "🧩 Strategic Output（價值輸出）",
+        "2": "🧑‍💼 Personal System（職涯系統）",
+        "3": "🛡 Financial Defense（財務防守）",
+        "4": "📈 Asset Growth（資產成長）",
+        "5": "⚙️ Execution Engine（執行引擎）",
+        "6": "🧠 Decision Brain（決策中樞）"
+    }
+
     for module_number in sorted(grouped_dbs.keys(), key=int):
         module_dbs = grouped_dbs[module_number]
-        module_title = next(iter(module_dbs)).split(" ", 1)[1].split(" ")[0]
-        emoji_title = {
-            "1": "📅 Career & Resume",
-            "2": "💰 Tax & Wealth",
-            "3": "📈 Investment Strategy",
-            "4": "📧 Writing & Email Identity",
-            "5": "📊 Data & Automation"
-        }.get(module_number, f"📁 Module {module_number}")
+        module_title = module_titles.get(module_number, f"📁 Module {module_number}")
 
-        print(f"## {emoji_title}\n")
+        print(f"## {module_title}\n")
 
         for db_name in sorted(module_dbs.keys()):
             fetch_schema(db_name, module_dbs[db_name])
+
 
 # ✅ 執行
 if __name__ == "__main__":

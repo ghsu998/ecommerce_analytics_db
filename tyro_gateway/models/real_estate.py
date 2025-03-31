@@ -1,18 +1,16 @@
-from pydantic import BaseModel
-from datetime import date
+from pydantic import BaseRealEstate
 from typing import Optional
+from datetime import date
 
-class RealEstateInput(BaseModel):
+class RealEstate(BaseRealEstate):
+    monthly_insurance: float
     purchase_date: date
     purchase_price: float
-    loan_amount: float
     property_address: str
-    strategy: Optional[str] = ""
-    notes: Optional[str] = ""
     monthly_cash_flow: float
-
-    # 🆕 新增欄位
-    monthly_mortgage_payment: float
     monthly_property_taxes: float
-    monthly_insurance: float
+    monthly_mortgage_payment: float
     monthly_utility_expenses: float
+    notes: Optional[str]
+    loan_amount: float
+    strategy: Optional[str]

@@ -1,19 +1,15 @@
-# 📁 tyro_gateway/routers/writing.py
 from fastapi import APIRouter
-from tyro_gateway.models.email_identity import EmailIdentityInput
-from tyro_gateway.models.client_crm import ClientCRMInput
-from tyro_gateway.notion_client import create_email_identity, create_client_crm
+from notion_client import create_record
+from models.writing import EmailIdentity
+from models.writing import ClientCrm
 
 router = APIRouter()
 
-# 4.1 Email Identity DB
 @router.post("/add-email-identity")
-def add_email_identity(data: EmailIdentityInput):
-    status, response = create_email_identity(data)
-    return {"status": status, "response": response}
+def add_email_identity(data: EmailIdentity):
+    return create_record("1.1", data.dict())
 
-# 4.2 Client CRM DB
 @router.post("/add-client-crm")
-def add_client_crm(data: ClientCRMInput):
-    status, response = create_client_crm(data)
-    return {"status": status, "response": response}
+def add_client_crm(data: ClientCrm):
+    return create_record("1.2", data.dict())
+

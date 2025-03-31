@@ -13,3 +13,4 @@ def add_api_trigger(data: APITrigger):
 @router.get("/api-trigger-logs")
 def list_api_triggers(limit: int = 10):
     return query_records("5.1", page_size=limit)
+

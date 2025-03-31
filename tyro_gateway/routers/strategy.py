@@ -13,3 +13,4 @@ def add_strategy(data: Strategy):
 @router.get("/strategies")
 def list_strategies(limit: int = 10):
     return query_records("6.1", page_size=limit)
+

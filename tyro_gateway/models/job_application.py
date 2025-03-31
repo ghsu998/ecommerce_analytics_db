@@ -1,8 +1,8 @@
-from pydantic import BaseJobApplication
+from pydantic import BaseModel
 from typing import Optional
 from datetime import date
 
-class JobApplication(BaseJobApplication):
+class JobApplication(BaseModel):
     date_applied: date
     job_type: str
     status: str

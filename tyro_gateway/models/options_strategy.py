@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import date
 
-class OptionsPlay(BaseModel):
+class OptionsStrategy(BaseModel):
     delta: Optional[float] = None
     ticker: str
     option_strategy: str

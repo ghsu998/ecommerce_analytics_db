@@ -48,8 +48,8 @@ def create_record(code: str, data: dict):
     db_id = DB_MAP[code]["id"]
     props = {}
     for k, v in data.items():
-        if k.lower() == "title":
-            props["Title"] = {"title": [{"text": {"content": str(v)}}]}
+        if k.lower() in ["title", "action_name"]:
+            props["Action Name"] = {"title": [{"text": {"content": str(v)}}]}
         else:
             props[k.replace("_", " ").title()] = to_notion_property(v)
 
@@ -60,6 +60,7 @@ def create_record(code: str, data: dict):
     url = "https://api.notion.com/v1/pages"
     res = requests.post(url, headers=HEADERS, json=payload)
     return res.status_code, res.json()
+
 
 # 🔍 查詢紀錄
 def query_records(code: str, filter_conditions: Optional[dict] = None, page_size: int = 10):

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from notion_client import create_record
-from models.career import JobApplication
-from models.career import ResumeVersion
+from tyro_gateway.notion_client import create_record
+from tyro_gateway.models.job_application import JobApplication
+from tyro_gateway.models.resume_version import ResumeVersion
 
 router = APIRouter()
 
@@ -12,4 +12,3 @@ def add_job_application(data: JobApplication):
 @router.post("/add-resume-version")
 def add_resume_version(data: ResumeVersion):
     return create_record("2.2", data.dict())
-

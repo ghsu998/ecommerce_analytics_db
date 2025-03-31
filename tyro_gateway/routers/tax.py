@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from notion_client import create_record
-from models.tax import PersonalTax
-from models.tax import BusinessTax
+from tyro_gateway.notion_client import create_record
+from tyro_gateway.models.personal_tax import PersonalTax
+from tyro_gateway.models.business_tax import BusinessTax
 
 router = APIRouter()
 
@@ -12,4 +12,3 @@ def add_personal_tax(data: PersonalTax):
 @router.post("/add-business-tax")
 def add_business_tax(data: BusinessTax):
     return create_record("3.2", data.dict())
-

@@ -1,11 +1,11 @@
-from pydantic import BaseStockStrategy
+from pydantic import BaseModel
 from typing import Optional
 from datetime import date
 
-class StockStrategy(BaseStockStrategy):
+class StockStrategy(BaseModel):
     ticker: str
-    position_size: Optional[float]
-    strategy_note: Optional[str]
-    action: Optional[str]
-    strike_price: Optional[float]
+    position_size: float
+    strategy_note: str
+    action: str
+    strike_price: float
     date: date

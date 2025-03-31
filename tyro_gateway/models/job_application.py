@@ -4,9 +4,9 @@ from datetime import date
 
 class JobApplication(BaseModel):
     date_applied: date
-    job_type: str
-    status: str
-    resume_version: str
-    company_name: str
-    notes: Optional[str]
     job_title: str
+    company_name: str
+    status: str
+    job_type: str
+    resume_version: Optional[str] = None
+    notes: Optional[str] = ""

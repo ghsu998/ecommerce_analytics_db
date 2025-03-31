@@ -1,8 +1,8 @@
-from pydantic import BaseApiTrigger
+from pydantic import BaseModel
 from typing import Optional
 from datetime import date
 
-class ApiTrigger(BaseApiTrigger):
+class APITrigger(BaseModel):
     timestamp: date
     trigger_source: str
     status: str

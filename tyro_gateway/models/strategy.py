@@ -1,11 +1,9 @@
-from pydantic import BaseStrategy
-from typing import Optional
-from datetime import date
+from pydantic import BaseModel
 
-class Strategy(BaseStrategy):
-    notes: Optional[str]
+class Strategy(BaseModel):
+    notes: str
     category: str
     objective: str
-    module_project: str
+    module_or_project: str
     phase: str
     strategy_name: str

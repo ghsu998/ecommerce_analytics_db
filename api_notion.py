@@ -58,7 +58,6 @@ def fetch_schema(database_name, database_id):
     print()
 
 # 🧠 3. 主函數：先按模組分群，再印出 schema
-# 🧠 3. 主函數：先按模組分群，再印出 schema
 def main():
     grouped_dbs = fetch_all_databases_grouped()
     print("# 🧠 TYRO Database Schema (Auto-Fetched)\n")

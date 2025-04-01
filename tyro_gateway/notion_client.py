@@ -30,6 +30,24 @@ DB_MAP = {
     "6.1": {"name": "DB.Strategy Master DB", "id": "1c72a656-d251-8073-af8f-e7a2c7fd0c14"},
 }
 
+# ✅ 特殊欄位對應（避免大小寫錯誤，例如：COGS / AGI / URL）
+FIELD_MAP = {
+    "3.2": {
+        "entity_type": "Entity Type",
+        "tax_year": "Tax Year",
+        "total_revenue": "Total Revenue",
+        "cogs": "COGS",
+        "total_expenses": "Total Expenses",
+        "net_income": "Net Income",
+        "franchise_tax": "Franchise Tax",
+        "estimated_tax_paid": "Estimated Tax Paid",
+        "filing_date": "Filing Date",
+        "business_name": "Business Name",
+        "notes": "Notes",
+    },
+    # 可日後擴充其他模組
+}
+
 # 🧠 將 Python 資料自動轉為 Notion 欄位格式
 def to_notion_property(value):
     if isinstance(value, (str, int, float)):
@@ -46,12 +64,14 @@ def to_notion_property(value):
 # ✅ 建立紀錄
 def create_record(code: str, data: dict):
     db_id = DB_MAP[code]["id"]
+    field_map = FIELD_MAP.get(code, {})  # ✅ 加入欄位轉換邏輯
     props = {}
     for k, v in data.items():
         if k.lower() in ["title", "action_name"]:
             props["Action Name"] = {"title": [{"text": {"content": str(v)}}]}
         else:
-            props[k.replace("_", " ").title()] = to_notion_property(v)
+            notion_key = field_map.get(k, k.replace("_", " ").title())
+            props[notion_key] = to_notion_property(v)
 
     payload = {
         "parent": {"database_id": db_id},

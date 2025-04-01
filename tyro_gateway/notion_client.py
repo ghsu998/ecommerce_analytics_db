@@ -50,8 +50,10 @@ FIELD_MAP = {
 
 # 🧠 將 Python 資料自動轉為 Notion 欄位格式
 def to_notion_property(value):
-    if isinstance(value, (str, int, float)):
-        return {"rich_text": [{"text": {"content": str(value)}}]}
+    if isinstance(value, (int, float)):
+        return {"number": value}
+    elif isinstance(value, str):
+        return {"rich_text": [{"text": {"content": value}}]}
     elif isinstance(value, (date, datetime)):
         return {"date": {"start": str(value)}}
     elif isinstance(value, bool):
@@ -60,6 +62,7 @@ def to_notion_property(value):
         return {"rich_text": [{"text": {"content": ""}}]}
     else:
         return {"rich_text": [{"text": {"content": str(value)}}]}
+
 
 # ✅ 建立紀錄
 def create_record(code: str, data: dict):

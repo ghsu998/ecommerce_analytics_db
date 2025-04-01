@@ -30,6 +30,21 @@ DB_MAP = {
     "6.1": {"name": "DB.Strategy Master DB", "id": "1c72a656-d251-8073-af8f-e7a2c7fd0c14"},
 }
 
+AUTO_LOG_ENABLED = {
+    "1.1": False,
+    "1.2": False,
+    "2.1": True,
+    "2.2": True,
+    "3.1": True,
+    "3.2": True,
+    "4.1": True,
+    "4.2": True,
+    "4.3": True,
+    "5.1": False,  # 自己不要 log 自己
+    "6.1": True,
+}
+
+
 # ✅ 特殊欄位對應（避免大小寫錯誤，例如：COGS / AGI / URL）
 FIELD_MAP = {
     "3.2": {
@@ -75,6 +90,16 @@ def create_record(code: str, data: dict):
         else:
             notion_key = field_map.get(k, k.replace("_", " ").title())
             props[notion_key] = to_notion_property(v)
+    # ✅ 自動記錄 API Trigger Log（排除自己）
+    if code != "5.1" and AUTO_LOG_ENABLED.get(code, False):
+        create_record("5.1", {
+            "action_name": f"Create {DB_MAP[code]['name']}",
+            "endpoint": f"/add-{DB_MAP[code]['name'].lower().replace(' ', '-').replace('.', '')}",
+            "data_summary": str(data),
+            "trigger_source": "#auto-log",
+            "timestamp": datetime.utcnow(),
+            "status": "✅ Success"
+        })
 
     payload = {
         "parent": {"database_id": db_id},

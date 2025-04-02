@@ -1,3 +1,5 @@
+# tyro_gateway/utils/notion_client.py
+
 import json
 import requests
 from datetime import date, datetime
@@ -39,11 +41,12 @@ AUTO_LOG_ENABLED = {
     "4.1": True,
     "4.2": True,
     "4.3": True,
-    "5.1": False,
+    "5.1": False,  # 自己不要 log 自己
     "6.1": True,
 }
 
-# ✅ 特殊欄位對應（避免大小寫錯誤）
+
+# ✅ 特殊欄位對應（避免大小寫錯誤，例如：COGS / AGI / URL）
 FIELD_MAP = {
     "3.2": {
         "entity_type": "Entity Type",
@@ -58,20 +61,7 @@ FIELD_MAP = {
         "business_name": "Business Name",
         "notes": "Notes",
     },
-    # 可擴充
-}
-
-# ✅ title fallback 規則（自動生成）
-TITLE_TEMPLATE = {
-    "2.1": lambda d: f"{d.get('company_name', '')} - {d.get('job_title', '')}",
-    "2.2": lambda d: f"Resume: {d.get('target_job_title', '')}",
-    "3.1": lambda d: f"{d.get('year', '')} Tax - {d.get('tax_platform', '')}",
-    "3.2": lambda d: f"{d.get('business_name', '')} - {d.get('tax_year', '')}",
-    "4.1": lambda d: f"{d.get('ticker', '')} Strategy @ {d.get('strike_price', '')}",
-    "4.2": lambda d: f"Options {d.get('ticker', '')} - {d.get('option_strategy', '')}",
-    "4.3": lambda d: f"{d.get('property_address', '')}",
-    "5.1": lambda d: d.get('action_name', 'Unnamed Log'),
-    "6.1": lambda d: d.get('strategy_name', 'Unnamed Strategy'),
+    # 可日後擴充其他模組
 }
 
 # 🧠 將 Python 資料自動轉為 Notion 欄位格式
@@ -89,24 +79,19 @@ def to_notion_property(value):
     else:
         return {"rich_text": [{"text": {"content": str(value)}}]}
 
+
 # ✅ 建立紀錄
 def create_record(code: str, data: dict):
     db_id = DB_MAP[code]["id"]
-    field_map = FIELD_MAP.get(code, {})
+    field_map = FIELD_MAP.get(code, {})  # ✅ 加入欄位轉換邏輯
     props = {}
-
-    # 自動生成 Title
-    title_value = data.get("title") or TITLE_TEMPLATE.get(code, lambda d: "")(data)
-    props["Title"] = {"title": [{"text": {"content": str(title_value)}}]}
-
-    # 其他欄位
     for k, v in data.items():
-        if k.lower() == "title":
-            continue  # 已處理
-        notion_key = field_map.get(k, k.replace("_", " ").title())
-        props[notion_key] = to_notion_property(v)
-
-    # 自動記錄 Trigger Log
+        if k.lower() in ["title", "action_name"]:
+            props["Action Name"] = {"title": [{"text": {"content": str(v)}}]}
+        else:
+            notion_key = field_map.get(k, k.replace("_", " ").title())
+            props[notion_key] = to_notion_property(v)
+    # ✅ 自動記錄 API Trigger Log（排除自己）
     if code != "5.1" and AUTO_LOG_ENABLED.get(code, False):
         create_record("5.1", {
             "action_name": f"Create {DB_MAP[code]['name']}",
@@ -124,6 +109,7 @@ def create_record(code: str, data: dict):
     url = "https://api.notion.com/v1/pages"
     res = requests.post(url, headers=HEADERS, json=payload)
     return res.status_code, res.json()
+
 
 # 🔍 查詢紀錄
 def query_records(code: str, filter_conditions: Optional[dict] = None, page_size: int = 10):

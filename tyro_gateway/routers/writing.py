@@ -1,5 +1,7 @@
+# tyro_gateway/routers/writing.py
+
 from fastapi import APIRouter
-from tyro_gateway.notion_client import create_record, query_records
+from tyro_gateway.utils.notion_client import create_record, query_records
 from tyro_gateway.models.email_identity import EmailIdentity
 from tyro_gateway.models.client_crm import ClientCRM
 

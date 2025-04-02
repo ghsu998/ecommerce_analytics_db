@@ -1,5 +1,7 @@
+# tyro_gateway/routers/career.py
+
 from fastapi import APIRouter
-from tyro_gateway.notion_client import create_record, query_records
+from tyro_gateway.utils.notion_client import create_record, query_records
 from tyro_gateway.models.job_application import JobApplication
 from tyro_gateway.models.resume_version import ResumeVersion
 

@@ -1,5 +1,7 @@
+# tyro_gateway/routers/tax.py
+
 from fastapi import APIRouter
-from tyro_gateway.notion_client import create_record, query_records
+from tyro_gateway.utils.notion_client import create_record, query_records
 from tyro_gateway.models.personal_tax import PersonalTax
 from tyro_gateway.models.business_tax import BusinessTax
 

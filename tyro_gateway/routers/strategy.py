@@ -1,5 +1,7 @@
+# tyro_gateway/routers/strategy.py
+
 from fastapi import APIRouter
-from tyro_gateway.notion_client import create_record, query_records
+from tyro_gateway.utils.notion_client import create_record, query_records
 from tyro_gateway.models.strategy import Strategy
 
 router = APIRouter()

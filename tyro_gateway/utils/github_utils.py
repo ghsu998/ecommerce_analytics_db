@@ -1,4 +1,4 @@
-# tyro_gateway/github_utils.py
+# tyro_gateway/utils/github_utils.py
 
 from fastapi import APIRouter, Query
 from tyro_gateway.utils import github_client

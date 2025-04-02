@@ -17,3 +17,4 @@ app_a_command.txt
 app_config.json
 
 full_logging.log
+logs/

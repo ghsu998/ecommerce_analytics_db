@@ -9,18 +9,22 @@ router = APIRouter()
 async def github_webhook(request: Request):
     payload = await request.json()
 
-    # 若是 main 分支 push
+    # 僅監聽 main branch 的 push event
     if payload.get("ref") == "refs/heads/main":
         try:
-            # 對整個 repo 做 git pull
+            # ✅ 拉取最新代碼
             subprocess.run(
                 ["git", "pull", "origin", "main"],
-                cwd="/home/ubuntu/ecommerce_analytics_db",
+                cwd="/home/ubuntu/ecommerce_analytics_db",  # ← 改為你實際的專案資料夾
                 check=True
             )
-            subprocess.run(["pm2", "restart", "tyro-gateway"], check=True)
-            return {"status": "✅ updated & restarted"}
-        except subprocess.CalledProcessError as e:
-            return {"status": "❌ error", "details": str(e)}
 
-    return {"status": "skipped"}
+            # ✅ 重新啟動應用服務
+            subprocess.run(["pm2", "restart", "tyro-gateway"], check=True)
+
+            return {"status": "✅ Code updated & service restarted."}
+
+        except subprocess.CalledProcessError as e:
+            return {"status": "❌ Error during deployment", "details": str(e)}
+
+    return {"status": "⏭ Skipped - not a push to main."}

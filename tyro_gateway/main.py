@@ -5,7 +5,7 @@
 from fastapi import FastAPI
 from tyro_gateway.routers import router  # ✅ 匯入你的主要 router group（這邊需確保 routers/__init__.py 存在）
 from tyro_gateway.routers import github_webhook  # ✅ 匯入 webhook 處理模組
-from tyro_gateway import github_utils  # ✅ 修正這行
+from tyro_gateway.utils import github_utils  # ✅ 修正這行
 
 # ✅ 初始化 FastAPI 應用
 app = FastAPI()

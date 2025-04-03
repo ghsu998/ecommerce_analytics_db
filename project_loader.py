@@ -56,3 +56,7 @@ def sync_project():
         "loaded": len(contents),
         "sample": list(contents.keys())[:5]
     }
+
+if __name__ == "__main__":
+    snapshot = sync_project()
+    print(json.dumps(snapshot, indent=2, ensure_ascii=False))

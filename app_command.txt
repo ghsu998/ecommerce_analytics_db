@@ -43,7 +43,7 @@ ls ~/.ssh
 
 更新github:
 git add .
-git commit -m "tyro_data_clean v1."
+git commit -m "webhook update"
 git push origin main
 
 同步github:

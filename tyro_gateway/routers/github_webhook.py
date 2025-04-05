@@ -14,15 +14,17 @@ def log_webhook(message: str):
 
 def restart_pm2():
     try:
-        subprocess.run(
-            ["/usr/local/bin/pm2", "restart", "tyro-gateway"],
-            check=True
+        result = subprocess.run(
+            "/usr/local/bin/pm2 restart tyro-gateway",
+            shell=True,
+            check=True,
+            capture_output=True,
+            text=True,
+            env={**os.environ, "PATH": "/usr/local/bin:" + os.environ.get("PATH", "")}
         )
-        log_webhook("✅ Restarted tyro-gateway in background.")
+        log_webhook(f"✅ Restarted tyro-gateway.\nSTDOUT: {result.stdout}\nSTDERR: {result.stderr}")
     except subprocess.CalledProcessError as e:
-        log_webhook(f"❌ Restart error: {str(e)}")
-
-
+        log_webhook(f"❌ Restart error: {str(e)}\nSTDERR: {e.stderr}")
 
 @router.post("/api/github_webhook")
 async def github_webhook(request: Request, background_tasks: BackgroundTasks):

@@ -19,7 +19,7 @@ def restart_pm2():
                 ["/usr/local/bin/pm2", "restart", "tyro-gateway"],
                 stdout=logfile,
                 stderr=logfile,
-                start_new_session=True  # ✅ 避免被 FastAPI 主程序 kill
+                start_new_session=True  # ✅ ✅ 這行是關鍵！
             )
         log_webhook("✅ Restart command dispatched via Popen.")
     except Exception as e:

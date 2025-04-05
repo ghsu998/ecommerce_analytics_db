@@ -10,7 +10,7 @@ venv/
 __pycache__/
 
 # 忽略配置檔案，防止密鑰洩漏
-
+token.pickle
 auto_task_localhost.py
 auto_task_localhost_log.txt
 app_a_command.txt

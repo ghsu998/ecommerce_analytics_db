@@ -14,17 +14,16 @@ def log_webhook(message: str):
 
 def restart_pm2():
     try:
-        result = subprocess.run(
-            "/usr/local/bin/pm2 restart tyro-gateway",
-            shell=True,
-            check=True,
-            capture_output=True,
-            text=True,
-            env={**os.environ, "PATH": "/usr/local/bin:" + os.environ.get("PATH", "")}
-        )
-        log_webhook(f"✅ Restarted tyro-gateway.\nSTDOUT: {result.stdout}\nSTDERR: {result.stderr}")
-    except subprocess.CalledProcessError as e:
-        log_webhook(f"❌ Restart error: {str(e)}\nSTDERR: {e.stderr}")
+        with open("/home/ubuntu/ecommerce_analytics_db/logs/github_webhook.log", "a") as logfile:
+            subprocess.Popen(
+                ["/usr/local/bin/pm2", "restart", "tyro-gateway"],
+                stdout=logfile,
+                stderr=logfile,
+                start_new_session=True  # ✅ 避免被 FastAPI 主程序 kill
+            )
+        log_webhook("✅ Restart command dispatched via Popen.")
+    except Exception as e:
+        log_webhook(f"❌ Restart error (Popen): {str(e)}")
 
 @router.post("/api/github_webhook")
 async def github_webhook(request: Request, background_tasks: BackgroundTasks):

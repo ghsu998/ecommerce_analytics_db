@@ -1,6 +1,8 @@
 import re
 import logging
 import pandas as pd
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.styles.stylesheet")
 
 def clean_column_names(data):
     """
@@ -53,6 +55,8 @@ def format_date_columns(df):
             logging.info(f"📅 已格式化 `{col}` 欄位為 `YYYY-MM-DD`")
 
     return df
+
+
 
 def main():
     """模組內部測試"""

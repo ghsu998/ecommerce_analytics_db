@@ -15,6 +15,9 @@ auto_task_localhost.py
 auto_task_localhost_log.txt
 app_a_command.txt
 app_config.json
-
+github_webhook.log
 full_logging.log
+project_loader.log
 logs/
+github_webhook.log
+project_snapshot.json

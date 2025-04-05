@@ -1,0 +1,105 @@
+# Remote MySQL
+    ssh -L 3306:127.0.0.1:3306 gary@173.201.189.56 -p gaga5288#5288#5288
+
+# VPS連線
+    ssh -i ~/.ssh/LightsailDefaultKey-us-west-2.pem ubuntu@35.93.161.252
+
+# Remote - SSH配置
+ssh ubuntu@35.93.161.252
+
+#終端查詢 SSH金鑰
+ls ~/.ssh
+
+# 初始化VPS配置流程
+# VPS更新 / 安裝必要工具 / 設置防火牆
+        sudo apt update && sudo apt upgrade -y
+            sudo apt install -y unzip git curl ufw
+                sudo ufw allow OpenSSH
+                sudo ufw allow 5000
+                sudo ufw enable
+# VPS安裝Python 3.12.3
+        sudo apt install -y python3 python3-pip python3-venv
+        python3 --version
+# VPS GITHUB SSH配置
+        ssh -T git@github.com
+# VPS GITHUB API配置
+        curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user
+# VPS下載 GITHUB GIT
+        cd /path/to/your/directory
+        git clone git@github.com:ghsu998/ecommerce_analytics_db.git
+# VPS創建Virtual Environment
+        mkdir ~/ecommerce_analytics_db
+            cd ~/ecommerce_analytics_db
+                python3 -m venv venv
+                    source venv/bin/activate
+                        pip install -r requirements.txt
+                            pip freeze > requirements.txt
+                                deactivate  # 確保退出虛擬環境
+                                    rm -rf venv
+# 本地上傳VPS - JSON:
+        scp -i /Users/gary/.ssh/LightsailDefaultKey-us-west-2.pem /Users/gary/Documents/GitHub/ecommerce_analytics_db/app_config.json ubuntu@35.93.161.252:/home/ubuntu/ecommerce_analytics_db/app_config.json
+
+########################################################################
+
+更新github:
+git add .
+git commit -m "tyro_data_clean v1."
+git push origin main
+
+同步github:
+git pull origin main
+
+查詢git 更新紀錄
+git log --oneline -n 1
+
+
+########################################################################
+# VPS服務器配置 Nginx + HTTPS
+    安裝 Nginx：
+        sudo apt update
+        sudo apt install nginx
+# 安裝 Certbot 來生成 SSL 證書：
+    sudo apt install certbot python3-certbot-nginx
+# 配置 Nginx + Sub-domain
+    cd /etc/nginx/sites-available/
+    sudo nano ecommerce.taigers.com
+    sudo nano /etc/nginx/sites-available/ecommerce.taigers.com
+# Nginx指令
+    sudo systemctl daemon-reload                #systemd 重新加載 Nginx 設定
+    sudo systemctl restart nginx                #重新啟動 Nginx
+    sudo systemctl status nginx                 #確認 Nginx 是否正常運行
+########################################################################
+# VPS運行API - nohup + gunicorn + api.py 
+    cat gunicorn.log                            #查看 nohup 日誌
+    sudo netstat -tulnp | grep 5000             #確認 5000 端口是否監聽
+    curl -I http://35.93.161.252:5000           #檢查API接受外部訪問
+    sudo certbot certificates                   #查詢 SSL 認證
+# GUNICORN指令
+    ps aux | grep gunicorn                      #每次登入 VPS，快速檢查 Gunicorn 是否運行
+    sudo pkill -f gunicorn
+    nohup gunicorn --workers 3 --bind 127.0.0.1:5000 api_ecommerce:app > gunicorn.log 2>&1 &
+    nohup gunicorn --workers 3 --bind 0.0.0.0:5000 api_ecommerce:app > gunicorn.log 2>&1 &
+    tail -f gunicorn.log                        #查看log
+###############################################
+
+
+
+uvicorn tyro_gateway.main:app --reload          #### LOCAL 起動FASTAPI
+
+# 1️⃣ 啟動 FastAPI App，交給 pm2 管理
+pm2 start /home/ubuntu/ecommerce_analytics_db/venv/bin/python \
+  --name tyro-gateway \
+  -- \
+  -m uvicorn tyro_gateway.main:app --host 0.0.0.0 --port 8000
+
+
+# 2️⃣ 查看運行狀態
+pm2 list
+
+# 3️⃣ 設定開機自動啟動（只做一次）
+pm2 startup
+# 然後照 terminal 提示貼上指令（會含 env 變數）
+
+# 4️⃣ 儲存目前所有狀態（很重要）
+pm2 save
+

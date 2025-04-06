@@ -18,15 +18,18 @@ from tyro_data_clean.apis.api_microsoft_onedrive_functions import (
     upload_onedrive_file, authenticate_microsoft
 )
 
-def get_primary_keys_from_config(client_id: str, file_prefix: str) -> list:
+
+def get_primary_keys_from_config(primary_keys_config) -> list:
     """
-    從 clients_file_mapping_table 撈取對應的 primary keys 設定
+    根據 config 提供的 list 或 str 自動格式化為 primary_keys list
     """
-    mapping_list = client_file_mapping_config.get_clients_file_mapping()
-    for m in mapping_list:
-        if m["client_id"] == client_id and m["client_file_prefix"] == file_prefix:
-            return [key.strip() for key in m["client_file_primary_keys"].split(",")]
-    return []
+    if isinstance(primary_keys_config, list):
+        return [key.strip() for key in primary_keys_config]
+    elif isinstance(primary_keys_config, str):
+        return [key.strip() for key in primary_keys_config.split(",")]
+    else:
+        return []
+
 
 def extract_dates_from_filename(filename):
     date_pattern = re.findall(r"(\d{4}_\d{2}_\d{2})", filename)
@@ -118,7 +121,7 @@ def process_client_raw_data(client_id, storage_type, service, user_email):
             # ⚙️ 合併與去重：使用 config 中定義的 primary keys
             if old_master_df is not None:
                 df_merged = pd.concat([old_master_df, df_raw_combined], ignore_index=True)
-                dedup_keys = get_primary_keys_from_config(client_id, file_prefix)
+                dedup_keys = get_primary_keys_from_config(primary_keys)
                 df_merged.drop_duplicates(subset=dedup_keys, keep="last", inplace=True)
             else:
                 df_merged = df_raw_combined

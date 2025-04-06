@@ -14,11 +14,11 @@ from tyro_gateway.routers import repo_docs             # 📘 自動化文件 AP
 app = FastAPI()
 
 # ✅ 載入所有路由模組
-app.include_router(router)                             # ✅ 修正這一行
-app.include_router(github_webhook)
-app.include_router(github_utils)
-app.include_router(dev_tools)
-app.include_router(repo_docs)
+app.include_router(router)
+app.include_router(github_webhook.router)
+app.include_router(github_utils.router)
+app.include_router(dev_tools.router)
+app.include_router(repo_docs.router)
 
 # ✅ 同步目前 repo 狀態（供 GPT 使用）
 PROJECT_STATE = project_loader.sync_project()

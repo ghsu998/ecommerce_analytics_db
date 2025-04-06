@@ -1,24 +1,43 @@
-# 忽略 Python 虛擬環境
+# -------------------------
+# 🐍 Python 虛擬環境 / 快取
+# -------------------------
 venv/
-
-# 忽略數據文件（確保 Git 只追蹤代碼）
-*.xlsx
-*.csv
-
-# 忽略 IDE 相關文件
-.vscode/
 __pycache__/
 
-# 忽略配置檔案，防止密鑰洩漏
+# -------------------------
+# 📦 數據檔案（不納入版本控管）
+# -------------------------
+*.xlsx
+*.csv
+*.log
+*.pickle
+
+# -------------------------
+# ⚙️ 環境 / 設定 / 憑證檔案
+# -------------------------
+app_config.json
+project_snapshot.json
 token.pickle
 auto_task_localhost.py
 auto_task_localhost_log.txt
+
+# -------------------------
+# 🧪 測試 / 操作指令備忘
+# -------------------------
+app_command.txt
 app_a_command.txt
-app_config.json
-github_webhook.log
-full_logging.log
-project_loader.log
+
+# -------------------------
+# 🧠 Logs / 運行紀錄
+# -------------------------
 logs/
-github_webhook.log
-project_snapshot.json
 cronjob.log
+full_logging.log
+github_webhook.log
+project_loader.log
+
+# -------------------------
+# 🧱 IDE / 開發工具相關
+# -------------------------
+.vscode/
+*.code-workspace

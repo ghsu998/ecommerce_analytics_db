@@ -5,19 +5,22 @@ import json
 import project_loader
 
 from fastapi import FastAPI
-from tyro_gateway.routers import router            # 🧩 主功能 API（career, tax, investment...）
-from tyro_gateway.routers import github_webhook    # 🔁 GitHub webhook 自動部署
-from tyro_gateway.utils import github_utils        # 🔍 查詢最新 commit 狀態
-from tyro_gateway.routers import dev_tools         # 🛠️ 開發者工具（project_tree）
+from tyro_gateway.routers import router                # ✅ 主功能 API 集合點
+from tyro_gateway.routers import github_webhook        # 🔁 GitHub webhook 自動部署
+from tyro_gateway.utils import github_utils            # 🔍 查詢最新 commit 狀態
+from tyro_gateway.routers import dev_tools             # 🛠️ 開發者工具
+from tyro_gateway.routers import repo_docs             # 📘 自動化文件 API
 
 app = FastAPI()
-from routers import repo_docs
-app.include_router(repo_docs.router)
 
-# ✅ 載入開發工具 API
-app.include_router(dev_tools.router)
+# ✅ 載入所有路由模組
+app.include_router(router.router)                      # 主功能模組
+app.include_router(github_webhook.router)              # webhook
+app.include_router(github_utils.router)                # git 狀態查詢
+app.include_router(dev_tools.router)                   # 開發工具
+app.include_router(repo_docs.router)                   # 文件查詢 API
 
-# ✅ 載入並同步主目錄所有檔案（供 GPT 使用）
+# ✅ 同步目前 repo 狀態（供 GPT 使用）
 PROJECT_STATE = project_loader.sync_project()
 print(f"🧠 Project Loaded: {PROJECT_STATE['loaded']} files")
 print("📄 Sample files:")
@@ -41,8 +44,3 @@ def get_project_state():
 @app.get("/")
 def read_root():
     return {"message": "Hello from TYRO Gateway"}
-
-# ✅ 載入各模組 API
-app.include_router(router)                 # 主功能模組
-app.include_router(github_webhook.router) # Webhook 自動重啟
-app.include_router(github_utils.router)   # 查詢 Git 狀態

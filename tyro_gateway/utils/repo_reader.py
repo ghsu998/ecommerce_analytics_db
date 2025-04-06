@@ -9,9 +9,10 @@ GITHUB_BRANCH = "main"
 GITHUB_TOKEN = get_config_value(["github", "access_token"])
 
 HEADERS = {
-    "Authorization": f"Bearer {GITHUB_TOKEN}",
+    "Authorization": f"token {GITHUB_TOKEN}",
     "Accept": "application/vnd.github.v3+json"
 }
+
 
 def list_repo_tree():
     """列出整個 GitHub Repo 的目錄樹"""

@@ -15,9 +15,9 @@ app = FastAPI()
 
 # ✅ 載入所有路由模組
 app.include_router(router)                             # ✅ 修正這一行
-app.include_router(github_webhook.router)
-app.include_router(github_utils.router)
-app.include_router(dev_tools.router)
+app.include_router(github_webhook)
+app.include_router(github_utils)
+app.include_router(dev_tools)
 app.include_router(repo_docs)
 
 # ✅ 同步目前 repo 狀態（供 GPT 使用）

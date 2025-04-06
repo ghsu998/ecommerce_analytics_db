@@ -18,7 +18,7 @@ app.include_router(router.router)                      # 主功能模組
 app.include_router(github_webhook.router)              # webhook
 app.include_router(github_utils.router)                # git 狀態查詢
 app.include_router(dev_tools.router)                   # 開發工具
-app.include_router(repo_docs.router)                   # 文件查詢 API
+app.include_router(repo_docs)                          # 文件查詢 API
 
 # ✅ 同步目前 repo 狀態（供 GPT 使用）
 PROJECT_STATE = project_loader.sync_project()

@@ -4,12 +4,16 @@ import ast
 from collections import defaultdict
 from app_config import get_config_value
 
+# 🔐 定義 GitHub token 的彈性取得方式
+def get_github_token(identity="main"):
+    return get_config_value(["github", identity, "token"])
+
 GITHUB_REPO = "ghsu998/ecommerce_analytics_db"
 GITHUB_BRANCH = "main"
-GITHUB_TOKEN = get_config_value(["github", "access_token"])
+GITHUB_TOKEN = get_github_token("main")  # ✅ 你也可以改成 "bot" 來切換
 
 HEADERS = {
-    "Authorization": f"token {GITHUB_TOKEN}",
+    "Authorization": f"token {GITHUB_TOKEN}",  # ✅ 改為 token 而不是 Bearer
     "Accept": "application/vnd.github.v3+json"
 }
 

@@ -11,6 +11,12 @@ from tyro_gateway.utils import github_utils            # 🔍 查詢最新 commi
 from tyro_gateway.routers import dev_tools             # 🛠️ 開發者工具
 from tyro_gateway.routers import repo_docs             # 📘 自動化文件 API
 
+from dotenv import load_dotenv
+from tyro_gateway.env_loader import get_gpt_mode
+
+load_dotenv()
+GPT_MODE = get_gpt_mode()
+
 app = FastAPI()
 
 # ✅ 載入所有路由模組
@@ -43,4 +49,4 @@ def get_project_state():
 # ✅ 健康檢查
 @app.get("/")
 def read_root():
-    return {"message": "Hello from TYRO Gateway"}
+    return {"message": f"Hello from TYRO Gateway — Mode: {GPT_MODE}"}

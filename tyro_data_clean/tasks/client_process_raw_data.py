@@ -1,8 +1,10 @@
+
 import sys, os
 import io
 import pandas as pd
 import re
 from datetime import datetime
+from pathlib import Path
 
 from app_config import get_config_value, logger
 from tyro_data_clean.utils import app_utility
@@ -15,6 +17,16 @@ from tyro_data_clean.apis.api_microsoft_onedrive_functions import (
     get_onedrive_folder_id, list_onedrive_files, download_onedrive_file,
     upload_onedrive_file, authenticate_microsoft
 )
+
+def get_primary_keys_from_config(client_id: str, file_prefix: str) -> list:
+    """
+    從 clients_file_mapping_table 撈取對應的 primary keys 設定
+    """
+    mapping_list = client_file_mapping_config.get_clients_file_mapping()
+    for m in mapping_list:
+        if m["client_id"] == client_id and m["client_file_prefix"] == file_prefix:
+            return [key.strip() for key in m["client_file_primary_keys"].split(",")]
+    return []
 
 def extract_dates_from_filename(filename):
     date_pattern = re.findall(r"(\d{4}_\d{2}_\d{2})", filename)
@@ -56,7 +68,6 @@ def process_client_raw_data(client_id, storage_type, service, user_email):
             logger.warning(f"⚠️ `{client_id}` - `client_file_primary_keys` 應該是列表格式，跳過 `{file_prefix}`")
             continue
 
-        # Normalize name for matching
         def normalize_name(name):
             return name.replace("-", "_")
 
@@ -93,7 +104,6 @@ def process_client_raw_data(client_id, storage_type, service, user_email):
             df_raw_combined = pd.concat(df_list, ignore_index=True)
             df_raw_combined = app_utility.clean_column_names(df_raw_combined)
 
-            # 讀取舊 master，如果存在
             master_filename = f"{file_prefix}_master.xlsx"
             old_master_df = None
             existing_master_file = next((f for f in all_files if f["file_name"] == master_filename), None)
@@ -105,14 +115,15 @@ def process_client_raw_data(client_id, storage_type, service, user_email):
                 except Exception as e:
                     logger.warning(f"⚠️ `{client_id}` - 無法讀取舊 master `{master_filename}`: {str(e)}")
 
-            # 合併（保留舊資料 + 新的去重覆）
+            # ⚙️ 合併與去重：使用 config 中定義的 primary keys
             if old_master_df is not None:
                 df_merged = pd.concat([old_master_df, df_raw_combined], ignore_index=True)
-                df_merged.drop_duplicates(subset=primary_keys, keep="last", inplace=True)
+                dedup_keys = get_primary_keys_from_config(client_id, file_prefix)
+                df_merged.drop_duplicates(subset=dedup_keys, keep="last", inplace=True)
             else:
                 df_merged = df_raw_combined
 
-            # 輸出合併後結果
+            # 💾 儲存合併結果
             output = io.BytesIO()
             df_merged.to_excel(output, index=False, engine='xlsxwriter')
             output.seek(0)
@@ -125,9 +136,6 @@ def process_client_raw_data(client_id, storage_type, service, user_email):
             logger.info(f"✅ `{client_id}` - `{master_filename}` 更新成功（已合併並保留歷史紀錄）")
 
     logger.info(f"📊 `{client_id}` - **處理完成**: 總檔案: {total_files}, ✅ 符合: {matching_files}, ⚠️ 不符合: {non_matching_files}")
-
-
-
 
 def main():
     clients = client_file_mapping_config.get_clients_list()

@@ -26,15 +26,13 @@ app.include_router(github_utils.router)      # 🔍 Git commit 狀態查詢 API
 
 # ✅ Step 4: 根據模式載入對應模組
 if GPT_MODE == "dev":
-    # 開發模式：載入所有開發者需要的模組
     from tyro_gateway.routers import router, repo_docs
     app.include_router(router)              # ✅ 整合主功能 API（career、tax、strategy 等）
     app.include_router(repo_docs.router)    # 📘 Git repo 掃描 / 解析 / 依賴分析
 
 elif GPT_MODE == "ops_root":
-    # 運營 Root：具備全權操作數據模組
     from tyro_gateway.routers import (
-        strategy, career, tax, investment, writing
+        strategy, career, tax, investment, writing, client_crm  # ✅ client_crm 補上了
     )
     app.include_router(strategy.router)
     app.include_router(career.router)
@@ -48,9 +46,7 @@ elif GPT_MODE == "ops_team":
     app.include_router(client_crm.router)
     app.include_router(strategy.router)
 
-
-
-# ✅ Step 5: 同步 repo 狀態（供 GPT 使用）
+# ✅ Step 5: 同步 repo 狀態（供 GPT 使用 prompt 架構）
 PROJECT_STATE = project_loader.sync_project()
 print(f"📂 Loaded Files: {PROJECT_STATE['loaded']}")
 for path in PROJECT_STATE["sample"]:

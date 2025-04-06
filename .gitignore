@@ -21,3 +21,4 @@ project_loader.log
 logs/
 github_webhook.log
 project_snapshot.json
+cronjob.log

@@ -1,16 +1,16 @@
 from pydantic import BaseModel
-from typing import Optional
 from datetime import date
 
 class BusinessTax(BaseModel):
-    entity_type: str
-    cogs: float
-    business_name: str
-    tax_year: int
-    total_expenses: float
-    net_income: float
-    franchise_tax: float
-    notes: Optional[str] = ""
-    total_revenue: float
-    estimated_tax_paid: float
+    title: str  # ✅ 供 Notion Title 使用，對應 Business Name
     filing_date: date
+    business_name: str
+    entity_type: str
+    tax_year: int
+    total_revenue: int
+    cogs: int
+    total_expenses: int
+    net_income: int
+    franchise_tax: int
+    estimated_tax_paid: int
+    notes: str = ""

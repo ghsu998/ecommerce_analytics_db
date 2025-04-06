@@ -1,9 +1,11 @@
-from pydantic import BaseModel
-from typing import Optional
+# models/email_identity.py
+
+from pydantic import BaseModel, Field
 
 class EmailIdentity(BaseModel):
-    language: str
-    used_for: str
-    tone_style: str
-    identity_name: str
-    example_phrase: Optional[str] = ""
+    title: str = Field(..., description="Notion 主索引欄位，建議等同 identity_name")
+    identity_name: str = Field(..., description="Email 身分標籤，例如 'Gary | Personal'")
+    language: str = Field(..., description="使用語言（例如 English）")
+    tone_style: str = Field(..., description="語氣風格，例如 Professional, Friendly")
+    used_for: str = Field(..., description="主要用途，例如 Brand Communication")
+    example_phrase: str = Field(default="", description="常用語句範本")

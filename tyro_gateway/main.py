@@ -11,6 +11,8 @@ from tyro_gateway.utils import github_utils        # 🔍 查詢最新 commit �
 from tyro_gateway.routers import dev_tools         # 🛠️ 開發者工具（project_tree）
 
 app = FastAPI()
+from routers import repo_docs
+app.include_router(repo_docs.router)
 
 # ✅ 載入開發工具 API
 app.include_router(dev_tools.router)

@@ -44,3 +44,6 @@ project_loader.log
 
 # macOS 系統自動生成
 .DS_Store
+
+
+backup/

@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from fastapi import APIRouter, Request, BackgroundTasks
 import subprocess
+import pytz
 
 router = APIRouter()
 
@@ -9,7 +10,7 @@ def log_webhook(message: str):
     log_dir = "/home/ubuntu/ecommerce_analytics_db/logs"
     os.makedirs(log_dir, exist_ok=True)
     with open(os.path.join(log_dir, "github_webhook.log"), "a") as f:
-        timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now(pytz.timezone("US/Pacific")).strftime("%Y-%m-%d %H:%M:%S")
         f.write(f"[{timestamp}] {message}\n")
 
 def restart_pm2():

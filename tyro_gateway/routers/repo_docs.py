@@ -1,7 +1,7 @@
 # tyro_gateway/routers/repo_docs.py
 
 from fastapi import APIRouter, Query
-from utils import repo_reader
+from tyro_gateway.utils import repo_reader
 # 已整合進 repo_reader.py
 # from utils.repo_docgen_utils import generate_dependency_graph, generate_module_doc
 

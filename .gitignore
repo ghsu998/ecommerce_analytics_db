@@ -41,3 +41,6 @@ project_loader.log
 # -------------------------
 .vscode/
 *.code-workspace
+
+# macOS 系統自動生成
+.DS_Store

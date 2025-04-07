@@ -7,7 +7,7 @@ from tyro_gateway.routers.career import router as career_router
 from tyro_gateway.routers.tax import router as tax_router
 from tyro_gateway.routers.investment import router as investment_router
 from tyro_gateway.routers.writing import router as writing_router
-from tyro_gateway.routers.execution import router as execution_router
+from tyro_gateway.routers.api_trigger import router as api_trigger_router
 from tyro_gateway.routers.strategy import router as strategy_router
 from tyro_gateway.routers.repo_docs import router as repo_docs_router
 
@@ -19,7 +19,7 @@ router.include_router(career_router)
 router.include_router(tax_router)
 router.include_router(investment_router)
 router.include_router(writing_router)
-router.include_router(execution_router)
+router.include_router(api_trigger_router)
 router.include_router(strategy_router)
 router.include_router(repo_docs_router)  # 📘 Git repo 代碼分析功能
 

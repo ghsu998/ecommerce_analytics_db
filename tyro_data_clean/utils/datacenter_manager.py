@@ -11,7 +11,7 @@ from app_config import get_config_value
 
 def generate_datacenter_filename(client_name: str) -> str:
     prefix = client_name.strip().split()[0]
-    return f"{prefix}_DataCenter.xlsx"
+    return f"{prefix}_datacenter.xlsx"
 
 def create_excel_file_bytes() -> bytes:
     wb = Workbook()

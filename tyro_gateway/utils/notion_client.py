@@ -73,11 +73,13 @@ def create_record(code: str, data: dict):
     db_name = DB_MAP[code]["name"]
     field_map = FIELD_MAP.get(code, {})
 
-    # 準備欄位
     props = {}
+
     for k, v in data.items():
-        if k.lower() in ["title", "action_name"]:
-            props["Action Name"] = {"title": [{"text": {"content": str(v)}}]}
+        if k.lower() == "title":
+            props["title"] = {
+                "title": [{"text": {"content": str(v)}}]
+            }
         else:
             notion_key = field_map.get(k, k.replace("_", " ").title())
             props[notion_key] = to_notion_property(v)
@@ -86,6 +88,7 @@ def create_record(code: str, data: dict):
         "parent": {"database_id": db_id},
         "properties": props
     }
+
     url = "https://api.notion.com/v1/pages"
     res = requests.post(url, headers=HEADERS, json=payload)
 

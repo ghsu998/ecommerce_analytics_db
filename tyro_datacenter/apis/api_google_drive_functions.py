@@ -4,7 +4,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 from googleapiclient.http import MediaFileUpload
 from app_config import get_config_value, logger
-from tyro_data_clean.apis.api_google import get_google_drive_service
+from tyro_datacenter.apis.api_google import get_google_drive_service
 
 # ✅ 獲取 `Google Drive` 設定
 google_server_clients_data_folder_id = get_config_value(["storage", "google_drive", "server_clients_data_folder_id"])

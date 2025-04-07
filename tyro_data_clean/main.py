@@ -12,7 +12,7 @@ from tyro_data_clean.apis.api_google import get_google_drive_service
 from tyro_data_clean.apis.api_microsoft import authenticate_microsoft
 from tyro_data_clean.tasks import client_process_raw_data
 
-# ✅ 新增：導入 DataCenter 工具 + 客戶名稱查詢
+# ✅ 新增：資料中心工具模組與客戶名稱查詢
 from tyro_data_clean.utils.datacenter_manager import ensure_datacenter_file_exists
 from tyro_data_clean.utils.client_info import get_client_name_by_id
 
@@ -47,9 +47,13 @@ def main():
             user_email=None
         )
 
-        # ✅ 新增：確認或建立 DataCenter 檔案（不修改內容）
+        # ✅ 自動建立對應雲端的 DataCenter.xlsx（若尚未存在）
         client_name = get_client_name_by_id(client_id)
-        ensure_datacenter_file_exists(client_id, client_name)
+        ensure_datacenter_file_exists(
+            client_id=client_id,
+            client_name=client_name,
+            storage_type=storage_type
+        )
 
         # ✅ 若是 Google Drive，再轉為 Google Sheets
         if storage_type == "google_drive":

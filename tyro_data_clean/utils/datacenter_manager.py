@@ -40,7 +40,7 @@ def ensure_datacenter_file_exists(client_id: str, client_name: str, storage_type
         folder_id = get_gdrive_folder_id(service, folder_base_id, client_data_folder)
         files = list_gdrive_files(service, folder_id) if folder_id else []
     else:
-        access_token = get_onedrive_service_for_check()  # ✅ 回傳 access_token 字串
+        access_token = get_onedrive_service_for_check()  # ✅ 這裡是純 access_token
         folder_id = get_onedrive_folder_id(access_token, folder_base_id, client_data_folder)
         files = list_onedrive_files(access_token, folder_id) if folder_id else []
 
@@ -82,4 +82,4 @@ def get_gdrive_service_for_check():
 
 def get_onedrive_service_for_check():
     from tyro_data_clean.apis.api_microsoft import authenticate_microsoft
-    return authenticate_microsoft()  # ✅ 這裡直接回傳 access_token 字串
+    return authenticate_microsoft()  # ✅ 回傳 access_token 字串

@@ -11,5 +11,6 @@ def log_api_trigger(action_name: str, endpoint: str, data_summary: dict, trigger
         trigger_source=trigger_source,
         user_identity=user_identity,
         timestamp=datetime.utcnow(),
-        status=status
+        status=status.replace("✅", "").strip() if status else "Success",
+
     ).dict())

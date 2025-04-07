@@ -63,7 +63,7 @@ def ensure_datacenter_file_exists(client_id: str, client_name: str, storage_type
             service=service,
             folder_id=folder_id,
             file_name=filename,
-            file_bytes=file_bytes,
+            file_data=file_bytes,
             mime_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
     else:

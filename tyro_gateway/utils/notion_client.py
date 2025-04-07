@@ -76,7 +76,7 @@ def create_record(code: str, data: dict):
     props = {}
 
     for k, v in data.items():
-        if k.lower() == "title":
+        if k.lower() == "title" and v:
             props["title"] = {
                 "title": [{"text": {"content": str(v)}}]
             }
@@ -92,7 +92,13 @@ def create_record(code: str, data: dict):
     url = "https://api.notion.com/v1/pages"
     res = requests.post(url, headers=HEADERS, json=payload)
 
-    # 自動記錄觸發（不記錄自己）
+    # ✅ 加入錯誤檢查與 debug 輸出
+    if res.status_code != 200:
+        print(f"❌ Notion create_record failed: {res.status_code}")
+        print("→ Response:", res.text)
+        return {"status": "error", "reason": res.text}
+
+    # ✅ 自動記錄 API Trigger Log（避免遞迴自己）
     if code != "5.1":
         try:
             summary_fields = ["title", "strategy_date", "action", "ticker"]

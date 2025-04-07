@@ -58,6 +58,7 @@ def main():
         # ✅ 若是 Google Drive，再轉為 Google Sheets
         if storage_type == "google_drive":
             client_file_xlsx_convert_google_sheet.convert_single_client_master_xlsx(client_id)
+            client_file_xlsx_convert_google_sheet.convert_datacenter_file_to_google_sheet(client_id)
 
     logger.info("🎯 所有客戶處理完成！")
 

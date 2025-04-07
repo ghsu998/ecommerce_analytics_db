@@ -50,6 +50,9 @@ FIELD_MAP = {
         "business_name": "Business Name",
         "notes": "Notes",
     },
+    "6.1": {
+        "module_project": "Module Project"
+    }
 }
 
 # ✅ 型別轉換：Python → Notion

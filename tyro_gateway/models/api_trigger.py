@@ -9,6 +9,7 @@ class TriggerStatus(str, Enum):
 
 class APITrigger(BaseModel):
     title: str  # Notion 要求有 Title 欄位作為主鍵
+    user_identity: str  # <--- 加上這個
     action_name: str
     endpoint: str
     data_summary: str

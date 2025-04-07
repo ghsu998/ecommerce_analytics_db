@@ -1,14 +1,18 @@
 # tyro_gateway/utils/notion_client.py
 
+import os
 import json
 import requests
-from datetime import date, datetime
+from datetime import datetime, date
 from typing import Optional
+from tyro_gateway.env_loader import get_gpt_mode
+from tyro_gateway.models.api_trigger import APITrigger
 
-# 讀取 Notion token
+# ✅ 載入 Notion Token 與 GPT 模式
 with open("app_config.json", "r") as f:
     config = json.load(f)
 NOTION_TOKEN = config["notion_token"]
+GPT_MODE = get_gpt_mode()
 
 HEADERS = {
     "Authorization": f"Bearer {NOTION_TOKEN}",
@@ -31,22 +35,7 @@ DB_MAP = {
     "6.1": {"name": "DB.Strategy Master DB", "id": "1c72a656-d251-8073-af8f-e7a2c7fd0c14"},
 }
 
-AUTO_LOG_ENABLED = {
-    "1.1": False,
-    "1.2": False,
-    "2.1": True,
-    "2.2": True,
-    "3.1": True,
-    "3.2": True,
-    "4.1": True,
-    "4.2": True,
-    "4.3": True,
-    "5.1": False,  # 自己不要 log 自己
-    "6.1": True,
-}
-
-
-# ✅ 特殊欄位對應（避免大小寫錯誤，例如：COGS / AGI / URL）
+# ✅ 特殊欄位對應（避免大小寫錯誤）
 FIELD_MAP = {
     "3.2": {
         "entity_type": "Entity Type",
@@ -61,10 +50,9 @@ FIELD_MAP = {
         "business_name": "Business Name",
         "notes": "Notes",
     },
-    # 可日後擴充其他模組
 }
 
-# 🧠 將 Python 資料自動轉為 Notion 欄位格式
+# ✅ 型別轉換：Python → Notion
 def to_notion_property(value):
     if isinstance(value, (int, float)):
         return {"number": value}
@@ -79,11 +67,13 @@ def to_notion_property(value):
     else:
         return {"rich_text": [{"text": {"content": str(value)}}]}
 
-
-# ✅ 建立紀錄
+# ✅ 建立紀錄 + 自動記錄觸發紀錄
 def create_record(code: str, data: dict):
     db_id = DB_MAP[code]["id"]
-    field_map = FIELD_MAP.get(code, {})  # ✅ 加入欄位轉換邏輯
+    db_name = DB_MAP[code]["name"]
+    field_map = FIELD_MAP.get(code, {})
+
+    # 準備欄位
     props = {}
     for k, v in data.items():
         if k.lower() in ["title", "action_name"]:
@@ -91,16 +81,6 @@ def create_record(code: str, data: dict):
         else:
             notion_key = field_map.get(k, k.replace("_", " ").title())
             props[notion_key] = to_notion_property(v)
-    # ✅ 自動記錄 API Trigger Log（排除自己）
-    if code != "5.1" and AUTO_LOG_ENABLED.get(code, False):
-        create_record("5.1", {
-            "action_name": f"Create {DB_MAP[code]['name']}",
-            "endpoint": f"/add-{DB_MAP[code]['name'].lower().replace(' ', '-').replace('.', '')}",
-            "data_summary": str(data),
-            "trigger_source": "#auto-log",
-            "timestamp": datetime.utcnow(),
-            "status": "✅ Success"
-        })
 
     payload = {
         "parent": {"database_id": db_id},
@@ -108,10 +88,30 @@ def create_record(code: str, data: dict):
     }
     url = "https://api.notion.com/v1/pages"
     res = requests.post(url, headers=HEADERS, json=payload)
-    return res.status_code, res.json()
 
+    # 自動記錄觸發（不記錄自己）
+    if code != "5.1":
+        try:
+            summary_fields = ["title", "strategy_date", "action", "ticker"]
+            data_summary = {k: v for k, v in data.items() if k in summary_fields}
 
-# 🔍 查詢紀錄
+            trigger_data = APITrigger(
+                title=f"Create Record: {code}",
+                action_name=f"create_record_{code}",
+                endpoint=f"/notion/create/{code}",
+                data_summary=json.dumps(data_summary, ensure_ascii=False),
+                trigger_source="GPT",
+                timestamp=datetime.utcnow().isoformat(),
+                status="Success",
+                user_identity=GPT_MODE
+            )
+            create_record("5.1", trigger_data.dict())
+        except Exception as e:
+            print(f"⚠️ Failed to log API trigger: {e}")
+
+    return {"status": "success", "notion_id": res.json().get("id")}
+
+# ✅ 查詢 Notion 資料
 def query_records(code: str, filter_conditions: Optional[dict] = None, page_size: int = 10):
     db_id = DB_MAP[code]["id"]
     url = f"https://api.notion.com/v1/databases/{db_id}/query"
@@ -119,18 +119,4 @@ def query_records(code: str, filter_conditions: Optional[dict] = None, page_size
     if filter_conditions:
         payload["filter"] = filter_conditions
     res = requests.post(url, headers=HEADERS, json=payload)
-    return res.status_code, res.json()
-
-# ✏️ 更新紀錄
-def update_record(page_id: str, updated_fields: dict):
-    props = {}
-    for k, v in updated_fields.items():
-        if k.lower() == "title":
-            props["Title"] = {"title": [{"text": {"content": str(v)}}]}
-        else:
-            props[k.replace("_", " ").title()] = to_notion_property(v)
-
-    url = f"https://api.notion.com/v1/pages/{page_id}"
-    payload = {"properties": props}
-    res = requests.patch(url, headers=HEADERS, json=payload)
     return res.status_code, res.json()

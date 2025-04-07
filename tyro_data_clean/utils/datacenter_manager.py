@@ -35,15 +35,15 @@ def ensure_datacenter_file_exists(client_id: str, client_name: str, storage_type
 
     client_data_folder = client_info["client_data_folder"]
 
-    # ✅ 判斷平台並取得雲端資料夾與檔案清單
     if storage_type == "google_drive":
         service = get_gdrive_service_for_check()
         folder_id = get_gdrive_folder_id(service, folder_base_id, client_data_folder)
         files = list_gdrive_files(service, folder_id) if folder_id else []
     else:
-        service = get_onedrive_service_for_check()
-        folder_id = get_onedrive_folder_id(service, folder_base_id, client_data_folder)
-        files = list_onedrive_files(service, folder_id) if folder_id else []
+        auth = get_onedrive_service_for_check()
+        access_token = auth["access_token"]
+        folder_id = get_onedrive_folder_id(access_token, folder_base_id, client_data_folder)
+        files = list_onedrive_files(access_token, folder_id) if folder_id else []
 
     if not folder_id:
         logger.warning(f"⚠️ `{client_id}` 無法取得 `{client_data_folder}` 雲端資料夾，跳過 DataCenter 建立")
@@ -68,10 +68,10 @@ def ensure_datacenter_file_exists(client_id: str, client_name: str, storage_type
         )
     else:
         upload_onedrive_file(
-            service=service,
-            folder_id=folder_id,
+            access_token=access_token,
+            parent_folder_id=folder_id,
             file_name=filename,
-            file_bytes=file_bytes
+            file_data=file_bytes
         )
 
     logger.info(f"[Tyro] ✅ 已建立 DataCenter 檔案於 {storage_type}: {filename}")
@@ -83,4 +83,4 @@ def get_gdrive_service_for_check():
 
 def get_onedrive_service_for_check():
     from tyro_data_clean.apis.api_microsoft import authenticate_microsoft
-    return authenticate_microsoft()
+    return authenticate_microsoft()  # ⬅️ 回傳 dict { access_token, user_email }

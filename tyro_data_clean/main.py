@@ -15,6 +15,7 @@ from tyro_data_clean.tasks import client_process_raw_data
 # ✅ 新增：資料中心工具模組與客戶名稱查詢
 from tyro_data_clean.utils.datacenter_manager import ensure_datacenter_file_exists
 from tyro_data_clean.utils.client_info import get_client_name_by_id
+from app_config import get_config_value  # 新增這行
 
 def main():
     # 🔁 取得所有客戶
@@ -58,7 +59,11 @@ def main():
         # ✅ 若是 Google Drive，再轉為 Google Sheets
         if storage_type == "google_drive":
             client_file_xlsx_convert_google_sheet.convert_single_client_master_xlsx(client_id)
-            client_file_xlsx_convert_google_sheet.convert_datacenter_file_to_google_sheet(client_id)
+            client_file_xlsx_convert_google_sheet.convert_client_datacenter_xlsx(
+                client_id=client_id,
+                root_folder_id=get_config_value(["storage", "google_drive", "server_clients_data_folder_id"]),
+                service=google_service
+            )
 
     logger.info("🎯 所有客戶處理完成！")
 

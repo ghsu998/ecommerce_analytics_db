@@ -17,7 +17,7 @@ app = FastAPI()
 print(f"🧠 GPT Gateway 啟動模式：{GPT_MODE}")
 
 # ✅ Step 3: 共用模組（任何身份都會載入）
-from tyro_gateway.routers import dev_tools, github_webhook
+from tyro_gateway.routers import github_webhook
 from tyro_gateway.utils import github_utils
 
 app.include_router(dev_tools.router)         # 🛠️ 開發者工具（project tree 等）

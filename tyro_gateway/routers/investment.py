@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from tyro_gateway.utils.notion_client import create_record, query_records
 from tyro_gateway.models.stock_strategy import StockStrategy
 from tyro_gateway.models.options_strategy import OptionsStrategy
-from tyro_gateway.models.real_estate import RealEstateEntry
+from tyro_gateway.models.real_estate import RealEstate
 
 router = APIRouter()
 

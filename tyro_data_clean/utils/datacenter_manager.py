@@ -8,6 +8,7 @@ from tyro_data_clean.apis.api_microsoft_onedrive_functions import (
     get_onedrive_folder_id, list_onedrive_files, upload_onedrive_file
 )
 from app_config import get_config_value
+from tyro_data_clean.utils import client_file_mapping_config
 
 def generate_datacenter_filename(client_name: str) -> str:
     prefix = client_name.strip().split()[0]
@@ -26,18 +27,26 @@ def ensure_datacenter_file_exists(client_id: str, client_name: str, storage_type
     filename = generate_datacenter_filename(client_name)
     folder_base_id = get_config_value(["storage", storage_type, "server_clients_data_folder_id"])
 
-    # ✅ 取得該客戶的雲端資料夾 ID
+    # ✅ 從 mapping 設定取得 client 的資料夾名稱
+    client_info = client_file_mapping_config.get_client_data_settings(client_id)
+    if not client_info:
+        logger.warning(f"⚠️ `{client_id}` 沒有對應的 mapping 設定，跳過 DataCenter 建立")
+        return
+
+    client_data_folder = client_info["client_data_folder"]
+
+    # ✅ 判斷平台並取得雲端資料夾與檔案清單
     if storage_type == "google_drive":
         service = get_gdrive_service_for_check()
-        folder_id = get_gdrive_folder_id(service, folder_base_id, f"client_{client_id}")
-        files = list_gdrive_files(service, folder_id)
+        folder_id = get_gdrive_folder_id(service, folder_base_id, client_data_folder)
+        files = list_gdrive_files(service, folder_id) if folder_id else []
     else:
         service = get_onedrive_service_for_check()
-        folder_id = get_onedrive_folder_id(service, folder_base_id, f"client_{client_id}")
-        files = list_onedrive_files(service, folder_id)
+        folder_id = get_onedrive_folder_id(service, folder_base_id, client_data_folder)
+        files = list_onedrive_files(service, folder_id) if folder_id else []
 
     if not folder_id:
-        logger.warning(f"⚠️ `{client_id}` 無法取得雲端資料夾，跳過 DataCenter 建立")
+        logger.warning(f"⚠️ `{client_id}` 無法取得 `{client_data_folder}` 雲端資料夾，跳過 DataCenter 建立")
         return
 
     # ✅ 檢查是否已存在 DataCenter.xlsx

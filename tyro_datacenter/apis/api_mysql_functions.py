@@ -1,6 +1,6 @@
 import pymysql
 from app_config import get_config_value, logger
-from tyro_data_clean.apis.api_mysql import get_db_connection
+from tyro_datacenter.apis.api_mysql import get_db_connection
 
 def get_all_tables():
     """🔍 取得資料庫中的所有表格名稱"""

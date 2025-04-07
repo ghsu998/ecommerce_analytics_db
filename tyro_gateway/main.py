@@ -20,7 +20,6 @@ print(f"🧠 GPT Gateway 啟動模式：{GPT_MODE}")
 from tyro_gateway.routers import github_webhook
 from tyro_gateway.utils import github_utils
 
-app.include_router(dev_tools.router)         # 🛠️ 開發者工具（project tree 等）
 app.include_router(github_webhook.router)    # 🔁 GitHub Webhook for 自動部署
 app.include_router(github_utils.router)      # 🔍 Git commit 狀態查詢 API
 

@@ -3,55 +3,52 @@
 import os
 import json
 import project_loader
-
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from tyro_gateway.env_loader import get_gpt_mode
 
-# ✅ Step 1: 載入 .env 並取得 GPT 模式設定（dev / ops_root / ops_team / chat）
+# Step 1: Load .env and GPT Mode
 load_dotenv()
 GPT_MODE = get_gpt_mode()
 
-# ✅ Step 2: 初始化 FastAPI 應用
+# Step 2: Initialize FastAPI
 app = FastAPI()
 print(f"🧠 GPT Gateway 啟動模式：{GPT_MODE}")
 
-# ✅ Step 3: 共用模組（任何身份都會載入）
-from tyro_gateway.routers import github_webhook
-from tyro_gateway.utils import github_utils
+# Step 3: Common routers (always loaded)
+from tyro_gateway.routers import github_webhook, repo_docs
+app.include_router(github_webhook.router)
+app.include_router(repo_docs.router)
 
-app.include_router(github_webhook.router)    # 🔁 GitHub Webhook for 自動部署
-app.include_router(github_utils.router)      # 🔍 Git commit 狀態查詢 API
+# Step 4: Dynamically load routers based on mode
+from tyro_gateway.routers import (
+    strategy, job_application, business_tax, client_crm,
+    email_identity, options_strategy, personal_tax, real_estate,
+    resume_version, stock_strategy, api_trigger
+)
 
-# ✅ Step 4: 根據模式載入對應模組
 if GPT_MODE == "dev":
-    from tyro_gateway.routers import router, repo_docs
-    app.include_router(router)              # ✅ 整合主功能 API（career、tax、strategy 等）
-    app.include_router(repo_docs.router)    # 📘 Git repo 掃描 / 解析 / 依賴分析
-
+    routers = [
+        strategy, job_application, business_tax, client_crm,
+        email_identity, options_strategy, personal_tax, real_estate,
+        resume_version, stock_strategy, api_trigger
+    ]
 elif GPT_MODE == "ops_root":
-    from tyro_gateway.routers import (
-        strategy, career, tax, investment, writing, client_crm  # ✅ client_crm 補上了
-    )
-    app.include_router(strategy.router)
-    app.include_router(career.router)
-    app.include_router(tax.router)
-    app.include_router(investment.router)
-    app.include_router(writing.router)
-    app.include_router(client_crm.router)
-
+    routers = [strategy, email_identity, resume_version, job_application, personal_tax, business_tax, client_crm, real_estate, stock_strategy]
 elif GPT_MODE == "ops_team":
-    from tyro_gateway.routers import client_crm, strategy
-    app.include_router(client_crm.router)
-    app.include_router(strategy.router)
+    routers = [strategy, client_crm]
+else:
+    routers = []
 
-# ✅ Step 5: 同步 repo 狀態（供 GPT 使用 prompt 架構）
+for r in routers:
+    app.include_router(r.router)
+
+# Step 5: Load and snapshot project structure
 PROJECT_STATE = project_loader.sync_project()
 print(f"📂 Loaded Files: {PROJECT_STATE['loaded']}")
 for path in PROJECT_STATE["sample"]:
     print("  -", path)
 
-# ✅ Step 6: 儲存目前專案快照（存入 logs）
 try:
     os.makedirs("logs", exist_ok=True)
     with open("logs/project_snapshot.json", "w", encoding="utf-8") as f:
@@ -59,7 +56,7 @@ try:
 except Exception as e:
     print(f"⚠️ Failed to write snapshot log: {e}")
 
-# ✅ Step 7: 健康檢查 + 狀態查詢 API
+# Step 6: Health check & project status
 @app.get("/api/dev/project_status")
 def get_project_state():
     return {

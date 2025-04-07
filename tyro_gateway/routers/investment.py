@@ -20,7 +20,7 @@ def add_options_strategy(data: OptionsStrategy):
 
 # 4.3 Real Estate - CREATE
 @router.post("/add-real-estate")
-def add_real_estate(data: RealEstateEntry):
+def add_real_estate(data: RealEstate):
     return create_record("4.3", data.dict())
 
 # 4.1 Stock Strategy - QUERY

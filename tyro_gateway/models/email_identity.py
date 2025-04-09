@@ -9,3 +9,4 @@ class EmailIdentity(BaseModel):
     tone_style: str = Field(..., description="語氣風格，例如 Professional, Friendly")
     used_for: str = Field(..., description="主要用途，例如 Brand Communication")
     example_phrase: str = Field(default="", description="常用語句範本")
+    notes: str = Field(default="", description="其他備註，例如角色背景、特殊需求")

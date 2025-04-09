@@ -63,12 +63,9 @@ def main():
     print("# 🧠 TYRO Database Schema (Auto-Fetched)\n")
 
     module_titles = {
-        "1": "🧩 Strategic Output（價值輸出）",
-        "2": "🧑‍💼 Personal System（職涯系統）",
-        "3": "🛡 Financial Defense（財務防守）",
-        "4": "📈 Asset Growth（資產成長）",
-        "5": "⚙️ Execution Engine（執行引擎）",
-        "6": "🧠 Decision Brain（決策中樞）"
+        "1": "📁 1. Development",
+        "2": "📁 2. Root User",
+        "3": "📁 3. Team User"
     }
 
     for module_number in sorted(grouped_dbs.keys(), key=int):

@@ -3,7 +3,7 @@ from tyro_gateway.utils.notion_client import create_record
 from datetime import datetime
 
 def log_api_trigger(action_name: str, endpoint: str, data_summary: dict, trigger_source: str, user_identity: str = "GPT", status: str = "✅ Success"):
-    return create_record("5.1", APITrigger(
+    return create_record("1.1", APITrigger(
         title=action_name,
         action_name=action_name,
         endpoint=endpoint,

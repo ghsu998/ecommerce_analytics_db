@@ -23,19 +23,16 @@ HEADERS = {
 # ✅ 所有 Notion DB ID 對照表
 DB_MAP = {
     "1.1": {"name": "API Trigger Log", "id": "1c72a656-d251-8070-9f94-c8c44d0c5b3d"},
-
-    "2.1": {"name": "SO.Email Identity DB", "id": "1c42a656-d251-80c1-a3d9-d6ed033a60e5"},
-    "2.2": {"name": "PS.Job Applications DB", "id": "1c32a656-d251-8037-915d-c0e9a52ef4d3"},
-    "2.3": {"name": "PS.Resume Versions DB", "id": "1c32a656-d251-8047-be41-debb5c2e6c0d"},
-    "2.4": {"name": "FD.Personal Tax DB", "id": "1c42a656-d251-80b1-b969-ebbf790ab828"},
-    "2.5": {"name": "FD.Business Tax DB", "id": "1c42a656-d251-803b-b514-e843e5039cdd"},
-    "2.6": {"name": "AG.Stock Strategy DB", "id": "1c42a656-d251-806f-9937-ddf04500ea15"},
-    "2.7": {"name": "AG.Options Strategy DB", "id": "1c42a656-d251-80d6-9423-d36c3c55d606"},
-    "2.8": {"name": "AG.Real Estate DB", "id": "1c42a656-d251-80e5-b765-caa4c5bc6b14"},
-    "2.9": {"name": "DB.Strategy Master DB", "id": "1c72a656-d251-8073-af8f-e7a2c7fd0c14"},
-
-
-    "3.1": {"name": "SO.Client CRM DB", "id": "1c42a656-d251-80c5-b261-f488a8c1ed04"},
+    "2.1": {"name": "Email Identity DB", "id": "1c42a656-d251-80c1-a3d9-d6ed033a60e5"},
+    "2.2": {"name": "Job Applications DB", "id": "1c32a656-d251-8037-915d-c0e9a52ef4d3"},
+    "2.3": {"name": "Resume Versions DB", "id": "1c32a656-d251-8047-be41-debb5c2e6c0d"},
+    "2.4": {"name": "Personal Tax DB", "id": "1c42a656-d251-80b1-b969-ebbf790ab828"},
+    "2.5": {"name": "Business Tax DB", "id": "1c42a656-d251-803b-b514-e843e5039cdd"},
+    "2.6": {"name": "Stock Strategy DB", "id": "1c42a656-d251-806f-9937-ddf04500ea15"},
+    "2.7": {"name": "Options Strategy DB", "id": "1c42a656-d251-80d6-9423-d36c3c55d606"},
+    "2.8": {"name": "Real Estate DB", "id": "1c42a656-d251-80e5-b765-caa4c5bc6b14"},
+    "2.9": {"name": "Strategy Master DB", "id": "1c72a656-d251-8073-af8f-e7a2c7fd0c14"},
+    "3.1": {"name": "Client CRM DB", "id": "1c42a656-d251-80c5-b261-f488a8c1ed04"}
 }
 
 # ✅ 特殊欄位對應（避免大小寫錯誤）

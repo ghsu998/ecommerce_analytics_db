@@ -102,7 +102,7 @@ def create_record(code: str, data: dict):
         return {"status": "error", "reason": res.text}
 
     # ✅ 自動記錄 API Trigger Log（避免遞迴自己）
-    if code != "5.1":
+    if code != "1.1":
         try:
             summary_fields = ["title", "strategy_date", "action", "ticker"]
             data_summary = {k: v for k, v in data.items() if k in summary_fields}
@@ -117,15 +117,20 @@ def create_record(code: str, data: dict):
                 status="Success",
                 user_identity=GPT_MODE
             )
-            create_record("5.1", trigger_data.dict())
+            create_record("1.1", trigger_data.dict())
         except Exception as e:
-            print(f"⚠️ Failed to log API trigger: {e}")
+            print(f"⚠️ Failed to log API trigger to '1.1': {e}")
 
     return {"status": "success", "notion_id": res.json().get("id")}
 
 # ✅ 查詢 Notion 資料
 def query_records(code: str, filter_conditions: Optional[dict] = None, page_size: int = 10):
-    db_id = DB_MAP[code]["id"]
+    db = DB_MAP.get(code)
+    if not db:
+        raise ValueError(f"❌ DB code '{code}' not found in DB_MAP.")
+    db_id = db["id"]
+    db_name = db["name"]
+
     url = f"https://api.notion.com/v1/databases/{db_id}/query"
     payload = {"page_size": page_size}
     if filter_conditions:

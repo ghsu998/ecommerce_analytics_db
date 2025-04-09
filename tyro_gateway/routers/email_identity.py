@@ -7,11 +7,11 @@ from tyro_gateway.utils.log_tools import log_api_trigger
 
 router = APIRouter()
 
-# 📌 1.1 Email Identity - CREATE
+# 📌 2.1 Email Identity - CREATE
 @router.post("/add-email-identity")
 def add_email_identity(data: EmailIdentity, request: Request):
     user_identity = request.headers.get("x-user-identity", "chat")
-    res = create_record("1.1", data.dict())
+    res = create_record("2.1", data.dict())
     log_api_trigger(
         action_name="Add Email Identity",
         endpoint="/add-email-identity",
@@ -21,11 +21,11 @@ def add_email_identity(data: EmailIdentity, request: Request):
     )
     return res
 
-# 📌 1.1 Email Identity - QUERY
+# 📌 2.1 Email Identity - QUERY
 @router.get("/email-identities")
 def list_email_identities(limit: int = 10, request: Request = None):
     user_identity = request.headers.get("x-user-identity", "chat") if request else "chat"
-    res = query_records("1.1", page_size=limit)
+    res = query_records("2.1", page_size=limit)
     log_api_trigger(
         action_name="List Email Identities",
         endpoint="/email-identities",

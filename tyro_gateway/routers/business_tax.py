@@ -7,11 +7,11 @@ from tyro_gateway.utils.log_tools import log_api_trigger
 
 router = APIRouter()
 
-# 📌 3.2 Business Tax - CREATE
+# 📌 2.5 Business Tax - CREATE
 @router.post("/add-business-tax")
 def add_business_tax(data: BusinessTax, request: Request):
     user_identity = request.headers.get("x-user-identity", "chat")
-    res = create_record("3.2", data.dict())
+    res = create_record("2.5", data.dict())
     log_api_trigger(
         action_name="Add Business Tax",
         endpoint="/add-business-tax",
@@ -21,11 +21,11 @@ def add_business_tax(data: BusinessTax, request: Request):
     )
     return res
 
-# 📌 3.2 Business Tax - QUERY
+# 📌 2.5 Business Tax - QUERY
 @router.get("/business-tax-records")
 def list_business_tax(limit: int = 10, request: Request = None):
     user_identity = request.headers.get("x-user-identity", "chat") if request else "chat"
-    res = query_records("3.2", page_size=limit)
+    res = query_records("2.5", page_size=limit)
     log_api_trigger(
         action_name="List Business Tax",
         endpoint="/business-tax-records",

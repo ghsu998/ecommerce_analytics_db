@@ -7,11 +7,11 @@ from tyro_gateway.utils.log_tools import log_api_trigger
 
 router = APIRouter()
 
-# 📌 4.2 Options Strategy - CREATE
+# 📌 2.7 Options Strategy - CREATE
 @router.post("/add-options-strategy")
 def add_options_strategy(data: OptionsStrategy, request: Request):
     user_identity = request.headers.get("x-user-identity", "chat")
-    res = create_record("4.2", data.dict())
+    res = create_record("2.7", data.dict())
     log_api_trigger(
         action_name="Add Options Strategy",
         endpoint="/add-options-strategy",
@@ -21,11 +21,11 @@ def add_options_strategy(data: OptionsStrategy, request: Request):
     )
     return res
 
-# 📌 4.2 Options Strategy - QUERY
+# 📌 2.7 Options Strategy - QUERY
 @router.get("/options-strategies")
 def list_options_strategies(limit: int = 10, request: Request = None):
     user_identity = request.headers.get("x-user-identity", "chat") if request else "chat"
-    res = query_records("4.2", page_size=limit)
+    res = query_records("2.7", page_size=limit)
     log_api_trigger(
         action_name="List Options Strategies",
         endpoint="/options-strategies",

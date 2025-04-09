@@ -7,11 +7,11 @@ from tyro_gateway.utils.log_tools import log_api_trigger
 
 router = APIRouter()
 
-# 📌 2.2 Resume Versions - CREATE
+# 📌 2.3 Resume Versions - CREATE
 @router.post("/add-resume-version")
 def add_resume_version(data: ResumeVersion, request: Request):
     user_identity = request.headers.get("x-user-identity", "chat")
-    res = create_record("2.2", data.dict())
+    res = create_record("2.3", data.dict())
     log_api_trigger(
         action_name="Add Resume Version",
         endpoint="/add-resume-version",
@@ -21,11 +21,11 @@ def add_resume_version(data: ResumeVersion, request: Request):
     )
     return res
 
-# 📌 2.2 Resume Versions - QUERY
+# 📌 2.3 Resume Versions - QUERY
 @router.get("/resume-versions")
 def list_resume_versions(limit: int = 10, request: Request = None):
     user_identity = request.headers.get("x-user-identity", "chat") if request else "chat"
-    res = query_records("2.2", page_size=limit)
+    res = query_records("2.3", page_size=limit)
     log_api_trigger(
         action_name="List Resume Versions",
         endpoint="/resume-versions",

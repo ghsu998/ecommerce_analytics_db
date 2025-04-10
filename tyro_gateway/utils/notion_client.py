@@ -37,9 +37,6 @@ DB_MAP = {
     "3.2": {"name": "Retailer CRM DB",         "id": "1d12a656-d251-808b-92b2-db7f17a6966d"}
 }
 
-# # ✅ 已廢用欄位對映（未來有需要再開）
-# FIELD_MAP = { ... }
-
 # ✅ 將 Python 資料轉換成 Notion Property 格式
 def to_notion_property(value):
     if isinstance(value, (int, float)):

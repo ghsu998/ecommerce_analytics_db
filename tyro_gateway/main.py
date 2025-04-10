@@ -1,5 +1,3 @@
-# tyro_gateway/main.py
-
 import os
 import json
 import project_loader
@@ -24,17 +22,21 @@ app.include_router(repo_docs.router)
 from tyro_gateway.routers import (
     strategy, job_application, business_tax, client_crm,
     email_identity, options_strategy, personal_tax, real_estate,
-    resume_version, stock_strategy, api_trigger
+    resume_version, stock_strategy, api_trigger, retailer_crm  # ✅ 加入 retailer_crm
 )
 
 if GPT_MODE == "dev":
     routers = [
         strategy, job_application, business_tax, client_crm,
         email_identity, options_strategy, personal_tax, real_estate,
-        resume_version, stock_strategy, api_trigger
+        resume_version, stock_strategy, api_trigger,
+        retailer_crm  # ✅ 加入到 dev 模式
     ]
 elif GPT_MODE == "ops_root":
-    routers = [strategy, email_identity, resume_version, job_application, personal_tax, business_tax, client_crm, real_estate, stock_strategy]
+    routers = [
+        strategy, email_identity, resume_version, job_application,
+        personal_tax, business_tax, client_crm, real_estate, stock_strategy
+    ]
 elif GPT_MODE == "ops_team":
     routers = [strategy, client_crm]
 else:

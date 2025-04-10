@@ -1,36 +1,36 @@
 # tyro_gateway/routers/resume_version.py
 
-from fastapi import APIRouter, Request
-from tyro_gateway.models.resume_version import ResumeVersion
+from fastapi import APIRouter, Request, Body
 from tyro_gateway.utils.notion_client import create_record, query_records
 from tyro_gateway.utils.log_tools import log_api_trigger
 
 router = APIRouter()
 
-# 📌 2.3 Resume Versions - CREATE
-@router.post("/add-resume-version")
-def add_resume_version(data: ResumeVersion, request: Request):
+# 📌 2.3 Resume Versions
+@router.post("/resume-version")
+def handle_resume_version(
+    request: Request,
+    action: str = Body(..., embed=True),
+    data: dict = Body(default={})
+):
     user_identity = request.headers.get("x-user-identity", "chat")
-    res = create_record("2.3", data.dict())
-    log_api_trigger(
-        action_name="Add Resume Version",
-        endpoint="/add-resume-version",
-        data_summary=data.dict(),
-        trigger_source="GPT",
-        user_identity=user_identity
-    )
-    return res
 
-# 📌 2.3 Resume Versions - QUERY
-@router.get("/resume-versions")
-def list_resume_versions(limit: int = 10, request: Request = None):
-    user_identity = request.headers.get("x-user-identity", "chat") if request else "chat"
-    res = query_records("2.3", page_size=limit)
     log_api_trigger(
-        action_name="List Resume Versions",
-        endpoint="/resume-versions",
-        data_summary={"limit": limit},
+        action_name=f"ResumeVersion::{action}",
+        endpoint="/resume-version",
+        data_summary=data,
         trigger_source="GPT",
         user_identity=user_identity
     )
-    return res
+
+    if action == "create":
+        return create_record("2.3", data)
+
+    elif action == "query":
+        limit = data.get("limit", 10)
+        return query_records("2.3", page_size=limit)
+
+    return {
+        "status": "error",
+        "message": f"❌ Unknown action '{action}' for Resume Version"
+    }

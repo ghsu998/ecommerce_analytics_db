@@ -1,39 +1,39 @@
 # tyro_gateway/routers/email_identity.py
 
-from fastapi import APIRouter, Request
-from tyro_gateway.models.email_identity import EmailIdentity
+from fastapi import APIRouter, Request, Body
 from tyro_gateway.utils.notion_client import create_record, query_records
 from tyro_gateway.utils.log_tools import log_api_trigger
 
 router = APIRouter()
 
-# 📌 2.1 Email Identity - CREATE
-@router.post("/add-email-identity")
-def add_email_identity(data: EmailIdentity, request: Request):
+# 📌 2.1 Email Identity 
+@router.post("/email-identity")
+def handle_email_identity(
+    request: Request,
+    action: str = Body(..., embed=True),
+    data: dict = Body(default={})
+):
     user_identity = request.headers.get("x-user-identity", "chat")
-    res = create_record("2.1", data.dict())
-    log_api_trigger(
-        action_name="Add Email Identity",
-        endpoint="/add-email-identity",
-        data_summary=data.dict(),
-        trigger_source="GPT",
-        user_identity=user_identity
-    )
-    return res
 
-# 📌 2.1 Email Identity - QUERY
-@router.get("/email-identities")
-def list_email_identities(limit: int = 10, request: Request = None):
-    user_identity = request.headers.get("x-user-identity", "chat") if request else "chat"
-    res = query_records("2.1", page_size=limit)
     log_api_trigger(
-        action_name="List Email Identities",
-        endpoint="/email-identities",
-        data_summary={"limit": limit},
+        action_name=f"EmailIdentity::{action}",
+        endpoint="/email-identity",
+        data_summary=data,
         trigger_source="GPT",
         user_identity=user_identity
     )
-    return res
+
+    if action == "create":
+        return create_record("2.1", data)
+
+    elif action == "query":
+        limit = data.get("limit", 10)
+        return query_records("2.1", page_size=limit)
+
+    return {
+        "status": "error",
+        "message": f"❌ Unknown action '{action}' for Email Identity"
+    }
 
 
 

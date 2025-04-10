@@ -32,7 +32,9 @@ DB_MAP = {
     "2.7": {"name": "Options Strategy DB", "id": "1c42a656-d251-80d6-9423-d36c3c55d606"},
     "2.8": {"name": "Real Estate DB", "id": "1c42a656-d251-80e5-b765-caa4c5bc6b14"},
     "2.9": {"name": "Strategy Master DB", "id": "1c72a656-d251-8073-af8f-e7a2c7fd0c14"},
-    "3.1": {"name": "Client CRM DB", "id": "1c42a656-d251-80c5-b261-f488a8c1ed04"}
+    "3.1": {"name": "Client CRM DB", "id": "1c42a656-d251-80c5-b261-f488a8c1ed04"},
+    "3.2": {"name": "Retailer CRM DB", "id": "1d12a656-d251-808b-92b2-db7f17a6966d"}
+
 }
 
 # ✅ 特殊欄位對應（避免大小寫錯誤）

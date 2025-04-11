@@ -28,18 +28,18 @@ from tyro_gateway.routers import (
     resume_version, stock_strategy, retailer_crm
 )
 
-if GPT_MODE == "dev":
+if GPT_MODE == "development":
     routers = [
-        strategy, job_application, business_tax, client_crm,
-        email_identity, options_strategy, personal_tax, real_estate,
-        resume_version, stock_strategy, retailer_crm
+        email_identity, job_application, resume_version, personal_tax, strategy, business_tax, stock_strategy, options_strategy, 
+        real_estate, strategy, client_crm, retailer_crm
+           
     ]
-elif GPT_MODE == "ops_root":
+elif GPT_MODE == "root user":
     routers = [
-        strategy, email_identity, resume_version, job_application,
-        personal_tax, business_tax, client_crm, real_estate, stock_strategy
+        email_identity, job_application, resume_version, personal_tax, strategy, business_tax, stock_strategy, options_strategy, 
+        real_estate, strategy, client_crm, retailer_crm
     ]
-elif GPT_MODE == "ops_team":
+elif GPT_MODE == "team user":
     routers = [client_crm, retailer_crm]
 else:
     routers = []

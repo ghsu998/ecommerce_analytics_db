@@ -29,7 +29,7 @@ def handle_email_identity(
     if action == "create":
         if not data.get("unique_key"):
             data["unique_key"] = generate_unique_key("email_identity", data)
-        return create_record("2.1", data)
+        return create_record_if_not_exists("2.1", data)
 
     elif action == "query":
         limit = data.get("limit", 10)

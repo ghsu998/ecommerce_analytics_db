@@ -19,3 +19,4 @@ class JobApplication(BaseModel):
     job_title: str = Field(..., description="應徵職缺名稱")
     company_name: str = Field(..., description="公司名稱")
     notes: str = Field(default="", description="其他備註，例如申請來源、特殊提醒")
+    unique_key: str = Field(..., description="唯一識別碼，建議使用 job_application 的 job_title + company_name")

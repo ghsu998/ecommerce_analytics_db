@@ -14,3 +14,4 @@ class BusinessTax(BaseModel):
     franchise_tax: int
     estimated_tax_paid: int
     notes: str = ""
+    unique_key: str  # ✅ 供 Notion Unique Key 使用，建議對應 business_name + tax_year

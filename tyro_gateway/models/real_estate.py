@@ -16,3 +16,4 @@ class RealEstate(BaseModel):
     monthly_insurance: float = Field(..., description="每月保費")
     monthly_utility_expenses: float = Field(..., description="每月水電雜費")
     notes: str = Field(default="", description="備註")
+    unique_key: str = Field(..., description="唯一識別碼，建議用 property_address 做為唯一標識")

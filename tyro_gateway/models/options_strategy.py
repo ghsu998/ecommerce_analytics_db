@@ -14,3 +14,4 @@ class OptionsStrategy(BaseModel):
     entry_option_price: float = Field(..., description="進場選擇權價格")
     contract_size: int = Field(..., description="合約單位（通常為 100）")
     strategy_note: str = Field(default="", description="額外說明")
+    unique_key: str = Field(..., description="唯一識別碼，建議使用 ticker + action + option_strategy + created_date")

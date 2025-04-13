@@ -10,3 +10,4 @@ class Strategy(BaseModel):
     phase: str = Field(..., description="策略所處階段")
     objective: str = Field(..., description="本策略目的或目標")
     notes: str = Field(default="", description="Markdown 說明、備註、執行細節")
+    unique_key: str = Field(..., description="唯一識別碼，建議用 strategy_name + module_project + category")

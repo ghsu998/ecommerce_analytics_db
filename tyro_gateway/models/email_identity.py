@@ -10,4 +10,4 @@ class EmailIdentity(BaseModel):
     used_for: str = Field(..., description="主要用途，例如 Brand Communication")
     example_phrase: str = Field(default="", description="常用語句範本")
     notes: str = Field(default="", description="其他備註，例如角色背景、特殊需求")
-    unique_key: str = Field(..., description="唯一識別碼，建議使用 email_identity 的 identity_name")
+    unique_key: str = Field(..., description="唯一識別碼，使用 email_identity 的 identity_name")

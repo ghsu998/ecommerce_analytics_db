@@ -21,3 +21,4 @@ class ClientCRM(BaseModel):
     client_last_contacted: date = Field(..., description="最近聯繫日期")
     assigned_to_identity: str = Field(..., description="分配給哪個 GPT 身分")
     client_notes: str = Field(default="", description="其他備註")
+    unique_key: str = Field(..., description="唯一識別碼，建議使用 client_name + client_company + client_email")

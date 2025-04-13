@@ -23,3 +23,4 @@ class RetailerCRM(BaseModel):
     assigned_to_identity: str = Field(..., description="分配給哪個 GPT 身分")
     retailer_notes: Optional[str] = Field(default="", description="備註")
     unique_key: str = Field(..., description="唯一識別碼，建議使用 retailer_name + retailer_company + retailer_email")
+    uni

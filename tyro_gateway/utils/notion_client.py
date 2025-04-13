@@ -115,3 +115,29 @@ def query_records(code: str, filter_conditions: Optional[dict] = None, page_size
 
     res = requests.post(url, headers=HEADERS, json=payload)
     return res.status_code, res.json()
+
+# ✅ 若 unique_key 已存在，則不建立，直接回傳現有資料
+def create_record_if_not_exists(code: str, data: dict, unique_key_field: str = "unique_key"):
+    from .notion_client import create_record, query_records
+
+    unique_key = data.get(unique_key_field)
+    if not unique_key:
+        raise ValueError("❌ 無法建立資料：缺少 unique_key")
+
+    # 組 filter 查詢 Notion DB 是否已有相同 unique_key
+    filter_conditions = {
+        "property": unique_key_field.replace("_", " ").title(),
+        "rich_text": {
+            "equals": unique_key
+        }
+    }
+    status_code, response = query_records(code, filter_conditions=filter_conditions, page_size=1)
+
+    if status_code == 200 and response.get("results"):
+        return {
+            "status": "skipped",
+            "message": f"⚠️ 資料已存在（unique_key: {unique_key}）",
+            "record": response["results"][0]
+        }
+
+    return create_record(code, data)

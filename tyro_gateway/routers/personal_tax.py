@@ -4,6 +4,7 @@ from fastapi import APIRouter, Request, Body
 from tyro_gateway.utils.notion_client import create_record, query_records
 from tyro_gateway.utils.log_tools import log_api_trigger
 from tyro_gateway.utils.unique_key_generator import generate_unique_key
+from tyro_gateway.utils.notion_client import create_record_if_not_exists
 
 
 router = APIRouter()
@@ -28,7 +29,7 @@ def handle_personal_tax(
     if action == "create":
         if not data.get("unique_key"):
             data["unique_key"] = generate_unique_key("personal_tax", data)
-        return create_record("2.4", data)
+        return create_record_if_not_exists("2.4", data)
 
 
     elif action == "query":

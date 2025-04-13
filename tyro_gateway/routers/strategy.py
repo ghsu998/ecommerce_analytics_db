@@ -4,6 +4,7 @@ from fastapi import APIRouter, Request, Body
 from tyro_gateway.utils.notion_client import create_record, query_records
 from tyro_gateway.utils.log_tools import log_api_trigger
 from tyro_gateway.utils.unique_key_generator import generate_unique_key
+from tyro_gateway.utils.notion_client import create_record_if_not_exists
 
 router = APIRouter()
 
@@ -27,7 +28,7 @@ def handle_strategy(
     if action == "create":
         if not data.get("unique_key"):
             data["unique_key"] = generate_unique_key("strategy", data)
-        return create_record("2.9", data)
+        return create_record_if_not_exists("2.9", data)
 
 
     elif action == "query":

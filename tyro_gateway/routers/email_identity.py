@@ -1,6 +1,7 @@
 # tyro_gateway/routers/email_identity.py
 
 from fastapi import APIRouter, Request, Body
+from typing import Dict, Any
 from tyro_gateway.utils.notion_client import create_record, query_records
 from tyro_gateway.utils.log_tools import log_api_trigger
 from tyro_gateway.utils.unique_key_generator import generate_unique_key
@@ -10,7 +11,12 @@ from tyro_gateway.utils.notion_client import create_record_if_not_exists
 router = APIRouter()
 
 # 📌 2.1 Email Identity 
-@router.post("/email-identity")
+@router.post(
+    "/email-identity",
+    tags=["Email Identity"],
+    summary="Create or query Email Identity",
+    response_model=Dict[str, Any]
+)
 def handle_email_identity(
     request: Request,
     action: str = Body(..., embed=True),
@@ -39,6 +45,3 @@ def handle_email_identity(
         "status": "error",
         "message": f"❌ Unknown action '{action}' for Email Identity"
     }
-
-
-

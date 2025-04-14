@@ -9,9 +9,10 @@ load_dotenv()
 def get_gpt_mode():
     """
     回傳目前 GPT 啟動模式，可為：
-    - dev（開發者模式）
-    - ops_root（營運 Root）
-    - ops_team（團隊協作）
+    - development（開發者模式）
+    - root_user（Root User）
+    - team_user（Team User）
     - chat（普通 GPT 模式）
     """
     return os.getenv("GPT_MODE", "chat")
+

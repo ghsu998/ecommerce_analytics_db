@@ -9,7 +9,7 @@ class BusinessTax(BaseModel):
     entity_type: str
     tax_year: int
     total_revenue: int
-    cogs: int = Field(..., alias="COGS")  # ✅ 這行才是你要加的
+    cogs: int = Field(..., alias="Cogs")  # ✅ 這行才是你要加的
     total_expenses: int
     net_income: int
     franchise_tax: int

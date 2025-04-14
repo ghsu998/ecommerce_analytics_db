@@ -1,7 +1,7 @@
 # ✅ tyro_gateway/routers/strategy.py（重構為 GPT Plugin 標準格式）
 
 from fastapi import APIRouter, Request
-from typing import Dict, Any, Literal
+from typing import Literal, List, Optional
 from pydantic import BaseModel
 
 from tyro_gateway.models.strategy import Strategy
@@ -11,6 +11,7 @@ from tyro_gateway.utils.notion_client import (
     create_record_if_not_exists,
     query_records
 )
+from tyro_gateway.utils.notion_parser import parse_notion_record
 
 router = APIRouter()
 
@@ -18,11 +19,18 @@ class StrategyActionRequest(BaseModel):
     action: Literal["create", "query"]
     data: Strategy
 
+class StrategyResponse(BaseModel):
+    status: str
+    message: Optional[str] = None
+    record: Optional[Strategy] = None
+    results: Optional[List[Strategy]] = None
+    notion_id: Optional[str] = None
+
 @router.post(
     "/strategy",
     tags=["Strategy"],
     summary="Create or query a strategy record",
-    response_model=Dict[str, Any]
+    response_model=StrategyResponse
 )
 def handle_strategy(
     request: Request,
@@ -43,13 +51,29 @@ def handle_strategy(
     if action == "create":
         if not data.get("unique_key"):
             data["unique_key"] = generate_unique_key("strategy", data)
-        return create_record_if_not_exists("2.9", data)
+        result = create_record_if_not_exists("2.9", data)
+        notion_data = result.get("record")
+        record = parse_notion_record(notion_data, Strategy) if notion_data else None
+        return StrategyResponse(
+            status=result.get("status"),
+            message=result.get("message"),
+            record=record,
+            notion_id=result.get("notion_id")
+        )
 
     elif action == "query":
         limit = data.get("limit", 10)
-        return query_records("2.9", page_size=limit)
+        status_code, response = query_records("2.9", page_size=limit)
+        notion_results = response.get("results", [])
+        parsed_results = [
+            parse_notion_record(n, Strategy) for n in notion_results
+        ]
+        return StrategyResponse(
+            status="success" if status_code == 200 else "error",
+            results=parsed_results
+        )
 
-    return {
-        "status": "error",
-        "message": f"❌ Unknown action '{action}' for Strategy"
-    }
+    return StrategyResponse(
+        status="error",
+        message=f"❌ Unknown action '{action}' for Strategy"
+    )

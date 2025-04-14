@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
+from pydantic import Field
 
 class BusinessTax(BaseModel):
     title: str  # ✅ 供 Notion Title 使用，對應 Business Name
@@ -8,7 +9,7 @@ class BusinessTax(BaseModel):
     entity_type: str
     tax_year: int
     total_revenue: int
-    cogs: int
+    cogs: int = Field(..., alias="COGS")  # ✅ 這行才是你要加的
     total_expenses: int
     net_income: int
     franchise_tax: int

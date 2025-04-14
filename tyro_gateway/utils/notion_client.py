@@ -133,6 +133,11 @@ def create_record_if_not_exists(code: str, data: dict, unique_key_field: str = "
     if not unique_key:
         raise ValueError("❌ 無法建立資料：缺少 unique_key")
 
+    # ✅ 加入黑名單欄位過濾（避免像 limit 被傳進去）
+    blacklist_fields = {"limit", "debug", "metadata"}
+    data = {k: v for k, v in data.items() if k not in blacklist_fields}
+
+    # ✅ 查詢是否已存在相同 unique_key
     filter_conditions = {
         "property": field_formatter(unique_key_field) if field_formatter else unique_key_field.replace("_", " ").title(),
         "rich_text": {"equals": unique_key}
@@ -147,3 +152,4 @@ def create_record_if_not_exists(code: str, data: dict, unique_key_field: str = "
         }
 
     return create_record(code, data, field_formatter=field_formatter)
+

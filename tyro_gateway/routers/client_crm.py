@@ -1,4 +1,4 @@
-# ✅ tyro_gateway/routers/client_crm.py（重構為 GPT Plugin 標準格式）
+# ✅ tyro_gateway/routers/client_crm.py（GPT Plugin 標準格式）
 
 from fastapi import APIRouter, Request
 from typing import Dict, Any, Literal

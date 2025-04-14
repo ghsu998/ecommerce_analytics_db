@@ -1,10 +1,10 @@
-# ✅ tyro_gateway/routers/email_identity.py（最終範例）
+# ✅ tyro_gateway/routers/email_identity.py（重構為 GPT Plugin 標準格式）
 
 from fastapi import APIRouter, Request
 from typing import Dict, Any, Literal
 from pydantic import BaseModel
 
-from tyro_gateway.models.email_identity import EmailIdentity  # ✅ 重用 model schema
+from tyro_gateway.models.email_identity import EmailIdentity
 from tyro_gateway.utils.log_tools import log_api_trigger
 from tyro_gateway.utils.unique_key_generator import generate_unique_key
 from tyro_gateway.utils.notion_client import (
@@ -14,16 +14,15 @@ from tyro_gateway.utils.notion_client import (
 
 router = APIRouter()
 
-# ✅ 統一 action schema（直接使用原始資料結構）
 class EmailIdentityActionRequest(BaseModel):
     action: Literal["create", "query"]
     data: EmailIdentity
 
 @router.post(
     "/email-identity",
-    tags=["Email Identity"],
-    summary="Create or query an email identity profile",
-    response_model=Dict[str, Any]
+    tags=["Email Identity"],  # ✅ 出現在 /docs 分類標籤
+    summary="Create or query an email identity profile",  # ✅ 顯示在 GPT Plugin schema 中
+    response_model=Dict[str, Any]  # ✅ 顯示回傳格式結構，Plugin 可理解
 )
 def handle_email_identity(
     request: Request,

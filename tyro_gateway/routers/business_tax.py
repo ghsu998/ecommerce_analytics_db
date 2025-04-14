@@ -1,4 +1,4 @@
-# ✅ tyro_gateway/routers/business_tax.py（重構為 GPT Plugin 標準格式）
+# ✅ tyro_gateway/routers/business_tax.py（GPT Plugin 標準格式）
 
 from fastapi import APIRouter, Request
 from typing import Dict, Any, Literal
@@ -20,9 +20,9 @@ class BusinessTaxActionRequest(BaseModel):
 
 @router.post(
     "/business-tax",
-    tags=["Business Tax"],
-    summary="Create or query a business tax record",
-    response_model=Dict[str, Any]
+    tags=["Business Tax"],  # ✅ 顯示在 Swagger 與 GPT Plugin 對話中
+    summary="Create or query a business tax record",  # ✅ 讓 GPT Plugin 知道用途
+    response_model=Dict[str, Any]  # ✅ 讓 /openapi.json 有 schema 欄位（最重要）
 )
 def handle_business_tax(
     request: Request,

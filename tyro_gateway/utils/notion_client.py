@@ -7,6 +7,8 @@ from datetime import datetime, date
 from typing import Optional, Callable, Union, List
 from tyro_gateway.env_loader import get_gpt_mode
 from tyro_gateway.models.api_trigger import APITrigger
+from dateutil.parser import parse as parse_date
+
 
 # ✅ 載入設定與身份
 with open("app_config.json", "r") as f:
@@ -42,9 +44,15 @@ def to_notion_property(value):
     if isinstance(value, (int, float)):
         return {"number": value}
     elif isinstance(value, str):
-        return {"rich_text": [{"text": {"content": value}}]}
+        try:
+            # 嘗試將字串轉成日期（ex: "February 8, 2025" → "2025-02-08"）
+            parsed_date = parse_date(value).date()
+            return {"date": {"start": parsed_date.isoformat()}}
+        except Exception:
+            # 如果不是日期字串，就當作普通文字處理
+            return {"rich_text": [{"text": {"content": value}}]}
     elif isinstance(value, (date, datetime)):
-        return {"date": {"start": str(value)}}
+        return {"date": {"start": value.isoformat()}}
     elif isinstance(value, bool):
         return {"checkbox": value}
     elif value is None:

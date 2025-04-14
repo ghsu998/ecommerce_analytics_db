@@ -1,28 +1,37 @@
-# tyro_gateway/routers/email_identity.py
+# ✅ tyro_gateway/routers/email_identity.py（最終範例）
 
-from fastapi import APIRouter, Request, Body
-from typing import Dict, Any
-from tyro_gateway.utils.notion_client import create_record, query_records
+from fastapi import APIRouter, Request
+from typing import Dict, Any, Literal
+from pydantic import BaseModel
+
+from tyro_gateway.models.email_identity import EmailIdentity  # ✅ 重用 model schema
 from tyro_gateway.utils.log_tools import log_api_trigger
 from tyro_gateway.utils.unique_key_generator import generate_unique_key
-from tyro_gateway.utils.notion_client import create_record_if_not_exists
-
+from tyro_gateway.utils.notion_client import (
+    create_record_if_not_exists,
+    query_records
+)
 
 router = APIRouter()
 
-# 📌 2.1 Email Identity 
+# ✅ 統一 action schema（直接使用原始資料結構）
+class EmailIdentityActionRequest(BaseModel):
+    action: Literal["create", "query"]
+    data: EmailIdentity
+
 @router.post(
     "/email-identity",
     tags=["Email Identity"],
-    summary="Create or query Email Identity",
+    summary="Create or query an email identity profile",
     response_model=Dict[str, Any]
 )
 def handle_email_identity(
     request: Request,
-    action: str = Body(..., embed=True),
-    data: dict = Body(default={})
+    payload: EmailIdentityActionRequest
 ):
     user_identity = request.headers.get("x-user-identity", "chat")
+    action = payload.action
+    data = payload.data.dict()
 
     log_api_trigger(
         action_name=f"EmailIdentity::{action}",

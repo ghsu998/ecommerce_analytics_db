@@ -21,31 +21,46 @@ app.include_router(github_webhook.router)
 app.include_router(repo_docs.router)
 app.include_router(api_trigger.router)
 
-# ✅ Step 4: 根據身份模式載入 router
+# ✅ Step 4: 根據身份模式載入 router（補上 tags metadata）
 from tyro_gateway.routers import (
     strategy, job_application, business_tax, client_crm,
     email_identity, options_strategy, personal_tax, real_estate,
     resume_version, stock_strategy, retailer_crm
 )
 
+router_registry = {
+    "email_identity": (email_identity, "/email-identity", ["Email Identity"]),
+    "job_application": (job_application, "/job-application", ["Job Application"]),
+    "resume_version": (resume_version, "/resume-version", ["Resume Version"]),
+    "personal_tax": (personal_tax, "/personal-tax", ["Personal Tax"]),
+    "strategy": (strategy, "/strategy", ["Strategy"]),
+    "business_tax": (business_tax, "/business-tax", ["Business Tax"]),
+    "stock_strategy": (stock_strategy, "/stock-strategy", ["Stock Strategy"]),
+    "options_strategy": (options_strategy, "/options-strategy", ["Options Strategy"]),
+    "real_estate": (real_estate, "/real-estate", ["Real Estate"]),
+    "client_crm": (client_crm, "/client-crm", ["Client CRM"]),
+    "retailer_crm": (retailer_crm, "/retailer-crm", ["Retailer CRM"]),
+}
+
 if GPT_MODE == "development":
-    routers = [
-        email_identity, job_application, resume_version, personal_tax, strategy, business_tax, stock_strategy, options_strategy, 
-        real_estate, strategy, client_crm, retailer_crm
-           
+    enabled_keys = [
+        "email_identity", "job_application", "resume_version", "personal_tax", "strategy",
+        "business_tax", "stock_strategy", "options_strategy", "real_estate", "client_crm", "retailer_crm"
     ]
 elif GPT_MODE == "root user":
-    routers = [
-        email_identity, job_application, resume_version, personal_tax, strategy, business_tax, stock_strategy, options_strategy, 
-        real_estate, strategy, client_crm, retailer_crm
+    enabled_keys = [
+        "email_identity", "job_application", "resume_version", "personal_tax", "strategy",
+        "business_tax", "stock_strategy", "options_strategy", "real_estate", "client_crm", "retailer_crm"
     ]
 elif GPT_MODE == "team user":
-    routers = [client_crm, retailer_crm]
+    enabled_keys = ["client_crm", "retailer_crm"]
 else:
-    routers = []
+    enabled_keys = []
 
-for r in routers:
-    app.include_router(r.router)
+# ✅ 統一註冊 router 並指定 prefix + tags，便於產出正確 OpenAPI 文檔
+for key in enabled_keys:
+    module, prefix, tags = router_registry[key]
+    app.include_router(module.router, prefix=prefix, tags=tags)
 
 # ✅ Step 5: 掃描並記錄專案狀態
 PROJECT_STATE = project_loader.sync_project()

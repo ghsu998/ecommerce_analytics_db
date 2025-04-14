@@ -1,22 +1,36 @@
-# tyro_gateway/routers/client_crm.py
+# ✅ tyro_gateway/routers/client_crm.py（重構為 GPT Plugin 標準格式）
 
-from fastapi import APIRouter, Request, Body
-from tyro_gateway.utils.notion_client import create_record, query_records
+from fastapi import APIRouter, Request
+from typing import Dict, Any, Literal
+from pydantic import BaseModel
+
+from tyro_gateway.models.client_crm import ClientCRM
 from tyro_gateway.utils.log_tools import log_api_trigger
 from tyro_gateway.utils.unique_key_generator import generate_unique_key
-from tyro_gateway.utils.notion_client import create_record_if_not_exists
-
+from tyro_gateway.utils.notion_client import (
+    create_record_if_not_exists,
+    query_records
+)
 
 router = APIRouter()
 
-# 📌 3.1 Client CRM
-@router.post("/client-crm")
+class ClientCRMActionRequest(BaseModel):
+    action: Literal["create", "query"]
+    data: ClientCRM
+
+@router.post(
+    "/client-crm",
+    tags=["Client CRM"],
+    summary="Create or query a client CRM record",
+    response_model=Dict[str, Any]
+)
 def handle_client_crm(
     request: Request,
-    action: str = Body(..., embed=True),
-    data: dict = Body(default={})
+    payload: ClientCRMActionRequest
 ):
     user_identity = request.headers.get("x-user-identity", "chat")
+    action = payload.action
+    data = payload.data.dict()
 
     log_api_trigger(
         action_name=f"ClientCRM::{action}",
@@ -30,7 +44,6 @@ def handle_client_crm(
         if not data.get("unique_key"):
             data["unique_key"] = generate_unique_key("client_crm", data)
         return create_record_if_not_exists("3.1", data)
-
 
     elif action == "query":
         limit = data.get("limit", 10)

@@ -1,10 +1,10 @@
-# tyro_gateway/utils/notion_client.py
+# ✅ tyro_gateway/utils/notion_client.py（優化後，支援欄位格式化與多條件查詢）
 
 import os
 import json
 import requests
 from datetime import datetime, date
-from typing import Optional
+from typing import Optional, Callable, Union, List
 from tyro_gateway.env_loader import get_gpt_mode
 from tyro_gateway.models.api_trigger import APITrigger
 
@@ -52,18 +52,18 @@ def to_notion_property(value):
     else:
         return {"rich_text": [{"text": {"content": str(value)}}]}
 
-# ✅ 建立 Notion 紀錄，並觸發 log（自動寫入 1.1）
-def create_record(code: str, data: dict):
+# ✅ 建立 Notion 紀錄
+
+def create_record(code: str, data: dict, field_formatter: Optional[Callable[[str], str]] = None):
     db_id = DB_MAP[code]["id"]
     db_name = DB_MAP[code]["name"]
 
     props = {}
     for k, v in data.items():
+        notion_key = field_formatter(k) if field_formatter else k.replace("_", " ").title()
         if k.lower() == "title" and v:
             props["title"] = {"title": [{"text": {"content": str(v)}}]}
         else:
-            # 目前 FIELD_MAP 廢用，直接 fallback 用轉換邏輯
-            notion_key = k.replace("_", " ").title()
             props[notion_key] = to_notion_property(v)
 
     payload = {
@@ -101,8 +101,8 @@ def create_record(code: str, data: dict):
 
     return {"status": "success", "notion_id": res.json().get("id")}
 
-# ✅ 查詢 Notion 紀錄
-def query_records(code: str, filter_conditions: Optional[dict] = None, page_size: int = 10):
+# ✅ 查詢 Notion 紀錄（支援單條或多條 filter）
+def query_records(code: str, filter_conditions: Optional[Union[dict, List[dict]]] = None, page_size: int = 10):
     db = DB_MAP.get(code)
     if not db:
         raise ValueError(f"❌ DB code '{code}' not found in DB_MAP.")
@@ -111,25 +111,24 @@ def query_records(code: str, filter_conditions: Optional[dict] = None, page_size
     url = f"https://api.notion.com/v1/databases/{db_id}/query"
     payload = {"page_size": page_size}
     if filter_conditions:
-        payload["filter"] = filter_conditions
+        if isinstance(filter_conditions, list):
+            payload["filter"] = {"and": filter_conditions}
+        else:
+            payload["filter"] = filter_conditions
 
     res = requests.post(url, headers=HEADERS, json=payload)
     return res.status_code, res.json()
 
-# ✅ 若 unique_key 已存在，則不建立，直接回傳現有資料
-def create_record_if_not_exists(code: str, data: dict, unique_key_field: str = "unique_key"):
-    from .notion_client import create_record, query_records
+# ✅ 若 unique_key 已存在，則不建立
 
+def create_record_if_not_exists(code: str, data: dict, unique_key_field: str = "unique_key", field_formatter: Optional[Callable[[str], str]] = None):
     unique_key = data.get(unique_key_field)
     if not unique_key:
         raise ValueError("❌ 無法建立資料：缺少 unique_key")
 
-    # 組 filter 查詢 Notion DB 是否已有相同 unique_key
     filter_conditions = {
-        "property": unique_key_field.replace("_", " ").title(),
-        "rich_text": {
-            "equals": unique_key
-        }
+        "property": field_formatter(unique_key_field) if field_formatter else unique_key_field.replace("_", " ").title(),
+        "rich_text": {"equals": unique_key}
     }
     status_code, response = query_records(code, filter_conditions=filter_conditions, page_size=1)
 
@@ -140,4 +139,4 @@ def create_record_if_not_exists(code: str, data: dict, unique_key_field: str = "
             "record": response["results"][0]
         }
 
-    return create_record(code, data)
+    return create_record(code, data, field_formatter=field_formatter)

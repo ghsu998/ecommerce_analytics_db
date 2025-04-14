@@ -12,7 +12,11 @@ load_dotenv()
 GPT_MODE = get_gpt_mode()
 
 # ✅ Step 2: 初始化 FastAPI 應用
-app = FastAPI()
+app = FastAPI(
+    title="TYRO Gateway API",
+    description="Unified API Gateway for Notion-integrated GPT Plugin",
+    version="1.0.0"
+)
 print(f"🧠 GPT Gateway 啟動模式：{GPT_MODE}")
 
 # ✅ Step 3: 掛載常駐 router（與 GPT 模式無關）
@@ -43,15 +47,9 @@ router_registry = {
 }
 
 if GPT_MODE == "development":
-    enabled_keys = [
-        "email_identity", "job_application", "resume_version", "personal_tax", "strategy",
-        "business_tax", "stock_strategy", "options_strategy", "real_estate", "client_crm", "retailer_crm"
-    ]
+    enabled_keys = list(router_registry.keys())
 elif GPT_MODE == "root user":
-    enabled_keys = [
-        "email_identity", "job_application", "resume_version", "personal_tax", "strategy",
-        "business_tax", "stock_strategy", "options_strategy", "real_estate", "client_crm", "retailer_crm"
-    ]
+    enabled_keys = list(router_registry.keys())
 elif GPT_MODE == "team user":
     enabled_keys = ["client_crm", "retailer_crm"]
 else:
@@ -59,8 +57,11 @@ else:
 
 # ✅ 統一註冊 router 並指定 prefix + tags，便於產出正確 OpenAPI 文檔
 for key in enabled_keys:
-    module, prefix, tags = router_registry[key]
-    app.include_router(module.router, prefix=prefix, tags=tags)
+    try:
+        module, prefix, tags = router_registry[key]
+        app.include_router(module.router, prefix=prefix, tags=tags)
+    except KeyError:
+        print(f"⚠️ Router key not found: {key}")
 
 # ✅ Step 5: 掃描並記錄專案狀態
 PROJECT_STATE = project_loader.sync_project()

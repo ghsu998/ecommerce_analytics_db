@@ -18,5 +18,7 @@ class JobApplication(BaseModel):
     job_type: str = Field(..., description="Remote / Onsite / Hybrid")
     job_title: str = Field(..., description="應徵職缺名稱")
     company_name: str = Field(..., description="公司名稱")
+    resume_summary: str = Field(..., description="履歷摘要")
+    cover_letter: str = Field(..., description="Cover Letter 內容")
     notes: str = Field(default="", description="其他備註，例如申請來源、特殊提醒")
     unique_key: str = Field(..., description="唯一識別碼，建議使用 job_application 的 job_title + company_name")

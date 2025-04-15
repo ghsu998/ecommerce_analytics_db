@@ -14,3 +14,5 @@ class PersonalTax(BaseModel):
     refund_due: float = Field(..., description="應退稅額")
     notes: str = Field(default="", description="備註內容")
     unique_key: str = Field(..., description="唯一識別碼，建議使用 tax_platform + year")
+
+

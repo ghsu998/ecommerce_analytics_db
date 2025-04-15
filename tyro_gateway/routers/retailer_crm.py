@@ -15,10 +15,12 @@ from tyro_gateway.utils.notion_parser import parse_notion_record
 
 router = APIRouter()
 
+# ✅ 請求格式
 class RetailerCRMActionRequest(BaseModel):
     action: Literal["create", "query"]
     data: RetailerCRM
 
+# ✅ 回傳格式
 class RetailerCRMResponse(BaseModel):
     status: str
     message: Optional[str] = None
@@ -40,6 +42,7 @@ def handle_retailer_crm(
     action = payload.action
     data = payload.data.dict()
 
+    # ✅ 記錄 log
     log_api_trigger(
         action_name=f"RetailerCRM::{action}",
         endpoint="/retailer-crm",
@@ -48,6 +51,7 @@ def handle_retailer_crm(
         user_identity=user_identity
     )
 
+    # ✅ 建立資料
     if action == "create":
         if not data.get("unique_key"):
             data["unique_key"] = generate_unique_key("retailer_crm", data)
@@ -61,8 +65,14 @@ def handle_retailer_crm(
             notion_id=result.get("notion_id")
         )
 
+    # ✅ 查詢資料（加入 limit 限制）
     elif action == "query":
-        limit = data.get("limit", 10)
+        try:
+            raw_limit = data.get("limit", 10)
+            limit = max(1, min(int(raw_limit), 100))
+        except (ValueError, TypeError):
+            limit = 10
+
         status_code, response = query_records("3.2", page_size=limit)
         notion_results = response.get("results", [])
         parsed_results = [
@@ -73,6 +83,7 @@ def handle_retailer_crm(
             results=parsed_results
         )
 
+    # ❌ fallback for unknown action
     return RetailerCRMResponse(
         status="error",
         message=f"❌ Unknown action '{action}' for Retailer CRM"

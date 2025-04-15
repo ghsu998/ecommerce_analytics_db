@@ -15,10 +15,12 @@ from tyro_gateway.utils.notion_parser import parse_notion_record
 
 router = APIRouter()
 
+# ✅ 請求格式
 class StockStrategyActionRequest(BaseModel):
     action: Literal["create", "query"]
     data: StockStrategy
 
+# ✅ 回傳格式（與其他 router 一致）
 class StockStrategyResponse(BaseModel):
     status: str
     message: Optional[str] = None
@@ -40,6 +42,7 @@ def handle_stock_strategy(
     action = payload.action
     data = payload.data.dict()
 
+    # ✅ 紀錄操作
     log_api_trigger(
         action_name=f"StockStrategy::{action}",
         endpoint="/stock-strategy",
@@ -48,12 +51,15 @@ def handle_stock_strategy(
         user_identity=user_identity
     )
 
+    # ✅ 建立紀錄流程
     if action == "create":
         if not data.get("unique_key"):
             data["unique_key"] = generate_unique_key("stock_strategy", data)
+
         result = create_record_if_not_exists("2.6", data)
         notion_data = result.get("record")
         record = parse_notion_record(notion_data, StockStrategy) if notion_data else None
+
         return StockStrategyResponse(
             status=result.get("status"),
             message=result.get("message"),
@@ -61,18 +67,26 @@ def handle_stock_strategy(
             notion_id=result.get("notion_id")
         )
 
+    # ✅ 查詢資料（加 limit 防呆）
     elif action == "query":
-        limit = data.get("limit", 10)
+        try:
+            raw_limit = data.get("limit", 10)
+            limit = max(1, min(int(raw_limit), 100))
+        except (ValueError, TypeError):
+            limit = 10
+
         status_code, response = query_records("2.6", page_size=limit)
         notion_results = response.get("results", [])
         parsed_results = [
             parse_notion_record(n, StockStrategy) for n in notion_results
         ]
+
         return StockStrategyResponse(
             status="success" if status_code == 200 else "error",
             results=parsed_results
         )
 
+    # ❌ fallback
     return StockStrategyResponse(
         status="error",
         message=f"❌ Unknown action '{action}' for Stock Strategy"

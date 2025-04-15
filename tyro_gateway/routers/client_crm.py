@@ -15,10 +15,12 @@ from tyro_gateway.utils.notion_parser import parse_notion_record
 
 router = APIRouter()
 
+# ✅ 請求格式定義
 class ClientCRMActionRequest(BaseModel):
     action: Literal["create", "query"]
     data: ClientCRM
 
+# ✅ 回傳格式定義
 class ClientCRMResponse(BaseModel):
     status: str
     message: Optional[str] = None
@@ -40,6 +42,7 @@ def handle_client_crm(
     action = payload.action
     data = payload.data.dict()
 
+    # ✅ 操作紀錄
     log_api_trigger(
         action_name=f"ClientCRM::{action}",
         endpoint="/client-crm",
@@ -48,6 +51,7 @@ def handle_client_crm(
         user_identity=user_identity
     )
 
+    # ✅ 建立紀錄流程
     if action == "create":
         if not data.get("unique_key"):
             data["unique_key"] = generate_unique_key("client_crm", data)
@@ -61,8 +65,14 @@ def handle_client_crm(
             notion_id=result.get("notion_id")
         )
 
+    # ✅ 查詢流程（加入 limit 防呆）
     elif action == "query":
-        limit = data.get("limit", 10)
+        try:
+            raw_limit = data.get("limit", 10)
+            limit = max(1, min(int(raw_limit), 100))
+        except (ValueError, TypeError):
+            limit = 10
+
         status_code, response = query_records("3.1", page_size=limit)
         notion_results = response.get("results", [])
         parsed_results = [
@@ -73,6 +83,7 @@ def handle_client_crm(
             results=parsed_results
         )
 
+    # ❌ fallback for unknown action
     return ClientCRMResponse(
         status="error",
         message=f"❌ Unknown action '{action}' for Client CRM"

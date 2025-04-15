@@ -15,10 +15,12 @@ from tyro_gateway.utils.notion_parser import parse_notion_record
 
 router = APIRouter()
 
+# ✅ 請求格式
 class RealEstateActionRequest(BaseModel):
     action: Literal["create", "query"]
     data: RealEstate
 
+# ✅ 回傳格式
 class RealEstateResponse(BaseModel):
     status: str
     message: Optional[str] = None
@@ -40,6 +42,7 @@ def handle_real_estate(
     action = payload.action
     data = payload.data.dict()
 
+    # ✅ 寫入操作紀錄
     log_api_trigger(
         action_name=f"RealEstate::{action}",
         endpoint="/real-estate",
@@ -48,6 +51,7 @@ def handle_real_estate(
         user_identity=user_identity
     )
 
+    # ✅ 建立紀錄
     if action == "create":
         if not data.get("unique_key"):
             data["unique_key"] = generate_unique_key("real_estate", data)
@@ -61,8 +65,14 @@ def handle_real_estate(
             notion_id=result.get("notion_id")
         )
 
+    # ✅ 查詢資料（加入防呆）
     elif action == "query":
-        limit = data.get("limit", 10)
+        try:
+            raw_limit = data.get("limit", 10)
+            limit = max(1, min(int(raw_limit), 100))
+        except (ValueError, TypeError):
+            limit = 10
+
         status_code, response = query_records("2.8", page_size=limit)
         notion_results = response.get("results", [])
         parsed_results = [
@@ -73,6 +83,7 @@ def handle_real_estate(
             results=parsed_results
         )
 
+    # ❌ fallback 錯誤處理
     return RealEstateResponse(
         status="error",
         message=f"❌ Unknown action '{action}' for Real Estate"

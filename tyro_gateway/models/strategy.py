@@ -1,6 +1,6 @@
 # models/strategy.py
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 class Strategy(BaseModel):
     title: str = Field(..., description="Notion 主索引欄位，建議等同 strategy_name")
@@ -11,3 +11,11 @@ class Strategy(BaseModel):
     objective: str = Field(..., description="本策略目的或目標")
     notes: str = Field(default="", description="Markdown 說明、備註、執行細節")
     unique_key: str = Field(..., description="唯一識別碼，建議用 strategy_name + module_project + category")
+
+    @model_validator(mode="before")
+    @classmethod
+    def auto_title(cls, values):
+        if not values.get("title"):
+            values["title"] = values.get("strategy_name", "")
+        return values
+

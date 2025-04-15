@@ -1,6 +1,6 @@
 # models/real_estate.py
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from datetime import date
 
 class RealEstate(BaseModel):
@@ -17,3 +17,12 @@ class RealEstate(BaseModel):
     monthly_utility_expenses: float = Field(..., description="每月水電雜費")
     notes: str = Field(default="", description="備註")
     unique_key: str = Field(..., description="唯一識別碼，建議用 property_address 做為唯一標識")
+
+    @model_validator(mode="before")
+    @classmethod
+    def auto_title(cls, values):
+        if not values.get("title"):
+            address = values.get("property_address", "")
+            strategy = values.get("strategy", "")
+            values["title"] = f"{strategy} | {address}".strip(" |")
+        return values

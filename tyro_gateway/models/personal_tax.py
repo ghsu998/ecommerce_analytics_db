@@ -1,6 +1,6 @@
 # models/personal_tax.py
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from datetime import date
 
 class PersonalTax(BaseModel):
@@ -14,5 +14,15 @@ class PersonalTax(BaseModel):
     refund_due: float = Field(..., description="應退稅額")
     notes: str = Field(default="", description="備註內容")
     unique_key: str = Field(..., description="唯一識別碼，建議使用 tax_platform + year")
+
+    @model_validator(mode="before")
+    @classmethod
+    def auto_title(cls, values):
+        if not values.get("title"):
+            platform = values.get("tax_platform", "")
+            year = values.get("year", "")
+            values["title"] = f"{platform} {year}".strip()
+        return values
+
 
 

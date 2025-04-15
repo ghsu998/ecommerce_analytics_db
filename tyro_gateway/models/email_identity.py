@@ -1,6 +1,6 @@
 # models/email_identity.py
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 class EmailIdentity(BaseModel):
     title: str = Field(..., description="Notion 主索引欄位，建議等同 identity_name")
@@ -11,3 +11,11 @@ class EmailIdentity(BaseModel):
     example_phrase: str = Field(default="", description="常用語句範本")
     notes: str = Field(default="", description="其他備註，例如角色背景、特殊需求")
     unique_key: str = Field(..., description="唯一識別碼，使用 email_identity 的 identity_name")
+
+    @model_validator(mode="before")
+    @classmethod
+    def auto_title(cls, values):
+        if not values.get("title"):
+            values["title"] = values.get("identity_name", "")
+        return values
+

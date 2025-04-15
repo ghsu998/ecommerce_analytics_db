@@ -1,6 +1,6 @@
 # models/job_application.py
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from datetime import date
 from enum import Enum
 
@@ -22,3 +22,13 @@ class JobApplication(BaseModel):
     cover_letter: str = Field(..., description="Cover Letter 內容")
     notes: str = Field(default="", description="其他備註，例如申請來源、特殊提醒")
     unique_key: str = Field(..., description="唯一識別碼，建議使用 job_application 的 job_title + company_name")
+
+    @model_validator(mode="before")
+    @classmethod
+    def auto_title(cls, values):
+        if not values.get("title"):
+            job_title = values.get("job_title", "")
+            company_name = values.get("company_name", "")
+            values["title"] = f"{job_title} @ {company_name}".strip()
+        return values
+

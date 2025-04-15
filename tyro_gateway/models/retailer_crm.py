@@ -1,6 +1,6 @@
 # tyro_gateway/models/retailer_crm.py
 
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, model_validator
 from datetime import date
 from enum import Enum
 from typing import Optional
@@ -23,3 +23,10 @@ class RetailerCRM(BaseModel):
     assigned_to_identity: str = Field(..., description="分配給哪個 GPT 身分")
     retailer_notes: Optional[str] = Field(default="", description="備註")
     unique_key: str = Field(..., description="唯一識別碼，建議使用 retailer_name + retailer_company + retailer_email")
+
+    @model_validator(mode="before")
+    @classmethod
+    def auto_title(cls, values):
+        if not values.get("title"):
+            values["title"] = values.get("retailer_name", "")
+        return values

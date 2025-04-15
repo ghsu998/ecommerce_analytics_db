@@ -1,48 +1,52 @@
-# tyro_gateway/utils/unique_key_generator.py
+# utils/unique_key_generator.py
+
+from datetime import datetime
 
 def generate_unique_key(model_name: str, data: dict) -> str:
-    # 📁 2.1 Email Identity DB
+    def safe_get(*fields) -> str:
+        """安全取得多個欄位組合並清理空格"""
+        values = [str(data.get(field, "")).strip() for field in fields]
+        return "-".join(filter(None, values))
+
+    key = ""
+
     if model_name == "email_identity":
-        return data.get("identity_name", "")
+        key = safe_get("identity_name")
 
-    # 📁 2.2 Job Applications DB
     elif model_name == "job_application":
-        return f"{data.get('job_title', '')}-{data.get('company_name', '')}"
+        key = safe_get("job_title", "company_name")
 
-    # 📁 2.3 Resume Versions DB
     elif model_name == "resume_version":
-        return f"{data.get('target_job_title', '')}-{data.get('date_created', '')}"
+        key = safe_get("target_job_title", "date_created")
 
-    # 📁 2.4 Personal Tax DB
-    elif model_name == "personal_tax":
-        return f"{data.get('tax_platform', '')}-{data.get('year', '')}"
-
-    # 📁 2.5 Business Tax DB
-    elif model_name == "business_tax":
-        return f"{data.get('business_name', '')}-{data.get('tax_year', '')}"
-
-    # 📁 2.6 Stock Strategy DB
     elif model_name == "stock_strategy":
-        return f"{data.get('ticker', '')}-{data.get('trade_action', '')}-{data.get('strategy_date', '')}"
+        key = safe_get("ticker", "trade_action", "strategy_date")
 
-    # 📁 2.7 Options Strategy DB
     elif model_name == "options_strategy":
-        return f"{data.get('ticker', '')}-{data.get('trade_action', '')}-{data.get('created_date', '')}-{data.get('option_strategy', '')}"
+        key = safe_get("ticker", "action", "created_date", "option_strategy")
 
-    # 📁 2.8 Real Estate DB
     elif model_name == "real_estate":
-        return data.get("property_address", "")
+        key = safe_get("property_address")
 
-    # 📁 2.9 Strategy Master DB
     elif model_name == "strategy":
-        return f"{data.get('strategy_name', '')}-{data.get('module_project', '')}-{data.get('category', '')}"
+        key = safe_get("strategy_name", "module_project", "category")
 
-    # 📁 3.1 Client CRM DB
     elif model_name == "client_crm":
-        return f"{data.get('client_name', '')}-{data.get('client_company', '')}-{data.get('client_email', '')}"
+        key = safe_get("client_name", "client_company", "client_email")
 
-    # 📁 3.2 Retailer CRM DB
     elif model_name == "retailer_crm":
-        return f"{data.get('retailer_name', '')}-{data.get('retailer_company', '')}-{data.get('retailer_email', '')}"
+        key = safe_get("retailer_name", "retailer_company", "retailer_email")
 
-    return ""
+    elif model_name == "personal_tax":
+        key = safe_get("tax_platform", "year")
+
+    elif model_name == "business_tax":
+        key = safe_get("business_name", "tax_year")
+
+    # ⛔ fallback 處理
+    if not key:
+        print(f"⚠️ Warning: Failed to generate unique key for {model_name}")
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        key = f"unknown-{model_name}-{timestamp}"
+
+    return key

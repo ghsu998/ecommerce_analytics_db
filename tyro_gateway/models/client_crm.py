@@ -16,7 +16,7 @@ class ClientCRM(BaseModel):
     client_email: EmailStr = Field(..., description="客戶電子郵件")
     client_phone: str = Field(..., description="客戶電話")
     client_address: str = Field(..., description="客戶地址")
-    status: ClientStatus = Field(..., description="目前狀態（Lead, Active, Lost）")
+    status: str = Field(..., description="目前狀態（Lead, Active, Lost）")
     client_last_contacted: date = Field(..., description="最近聯繫日期")
     assigned_to_identity: str = Field(..., description="分配給哪個 GPT 身分")
     client_notes: str = Field(default="", description="其他備註")

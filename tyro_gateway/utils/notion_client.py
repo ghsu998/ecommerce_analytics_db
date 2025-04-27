@@ -40,12 +40,14 @@ DB_MAP = {
 }
 
 # ✅ 將 Python 資料轉換成 Notion Property 格式
-def to_notion_property(value):
+def to_notion_property(value, field_name: Optional[str] = None):
     if isinstance(value, (int, float)):
         return {"number": value}
     elif isinstance(value, str):
+        # 🔥 檢查欄位名稱是否是 email 類型（而不是去猜內容）
+        if field_name and "email" in field_name.lower():
+            return {"email": value}
         try:
-            # 自動偵測像 "February 8, 2025" 格式
             parsed_date = datetime.strptime(value, "%B %d, %Y")
             return {"date": {"start": parsed_date.strftime("%Y-%m-%d")}}
         except ValueError:
@@ -59,8 +61,9 @@ def to_notion_property(value):
     else:
         return {"rich_text": [{"text": {"content": str(value)}}]}
 
-# ✅ 建立 Notion 紀錄
 
+
+# ✅ 建立 Notion 紀錄
 def create_record(code: str, data: dict, field_formatter: Optional[Callable[[str], str]] = None):
     db_id = DB_MAP[code]["id"]
     db_name = DB_MAP[code]["name"]
@@ -71,7 +74,8 @@ def create_record(code: str, data: dict, field_formatter: Optional[Callable[[str
         if k.lower() == "title" and v:
             props["title"] = {"title": [{"text": {"content": str(v)}}]}
         else:
-            props[notion_key] = to_notion_property(v)
+            # 這裡要把 field_name=k 傳進去，讓 to_notion_property 能正確判斷 email
+            props[notion_key] = to_notion_property(v, field_name=k)
 
     payload = {
         "parent": {"database_id": db_id},
@@ -107,6 +111,7 @@ def create_record(code: str, data: dict, field_formatter: Optional[Callable[[str
             print(f"⚠️ Failed to log API trigger to '1.1': {e}")
 
     return {"status": "success", "notion_id": res.json().get("id")}
+
 
 # ✅ 查詢 Notion 紀錄（支援單條或多條 filter）
 def query_records(code: str, filter_conditions: Optional[Union[dict, List[dict]]] = None, page_size: int = 10):
